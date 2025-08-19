@@ -1,50 +1,44 @@
+using UnityEngine;
+using TMPro;
 
-    using UnityEngine;
-    using TMPro;
+public class StatsUIManager : MonoBehaviour
+{
+    public TextMeshProUGUI weaponNameText;
+    public TextMeshProUGUI attackPowerText;
+    public TextMeshProUGUI defenseText;
+    public TextMeshProUGUI bonusHealthText;
+    public TextMeshProUGUI moveSpeedText;
+    public TextMeshProUGUI dashForceText;
+    public TextMeshProUGUI dashDurationText;
+    public TextMeshProUGUI dashCooldownText;
 
-    public class StatsUIManager : MonoBehaviour
+    private string statFormat = "{0} <color=green>(+{1})</color>";
+
+    public void UpdateStatsUI(WeaponStats weapon, PlayerStats playerStats, PlayerController playerController, PlayerHealth playerHealth)
     {
-        public TextMeshProUGUI weaponNameText;
-        public TextMeshProUGUI attackPowerText;
-        public TextMeshProUGUI defenseText;
-        public TextMeshProUGUI bonusHealthText;
-        public TextMeshProUGUI moveSpeedText;
-        public TextMeshProUGUI dashForceText;
-        public TextMeshProUGUI dashDurationText;
-        public TextMeshProUGUI dashCooldownText;
-
-        void Start()
+        if (weapon != null)
         {
-            // 게임 시작 시 초기 값으로 설정
-            UpdateStatsUI(null);
+            // 무기 장착 시
+            weaponNameText.text = weapon.weaponName;
+            attackPowerText.text = string.Format(statFormat, weapon.attackPower, playerStats.bonusAttackPower);
+            defenseText.text = string.Format(statFormat, weapon.defense, playerHealth.defense);
+            bonusHealthText.text = string.Format(statFormat, weapon.bonusHealth, playerHealth.baseMaxHealth - 100); // 100을 기본 체력으로 가정
+            moveSpeedText.text = playerController.moveSpeed.ToString("F1");
+            dashForceText.text = weapon.dashForce.ToString("F1");
+            dashDurationText.text = weapon.dashDuration.ToString("F2");
+            dashCooldownText.text = weapon.dashCooldown.ToString("F2");
         }
-
-        public void UpdateStatsUI(WeaponStats stats)
+        else
         {
-            if (stats != null)
-            {
-                // 무기 스탯이 있으면 해당 값으로 UI 업데이트
-                weaponNameText.text = stats.weaponName;
-                attackPowerText.text = stats.attackPower.ToString();
-                defenseText.text = stats.defense.ToString();
-                bonusHealthText.text = stats.bonusHealth.ToString();
-                moveSpeedText.text = stats.moveSpeed.ToString("F1");
-                dashForceText.text = stats.dashForce.ToString("F1");
-                dashDurationText.text = stats.dashDuration.ToString("F2");
-                dashCooldownText.text = stats.dashCooldown.ToString("F2");
-            }
-            else
-            {
-                // 무기 스탯이 없으면 (초기 상태) 기본 값으로 설정
-                weaponNameText.text = "없음";
-                attackPowerText.text = "0";
-                defenseText.text = "0";
-                bonusHealthText.text = "0";
-                moveSpeedText.text = "0.0";
-                dashForceText.text = "0.0";
-                dashDurationText.text = "0.00";
-                dashCooldownText.text = "0.00";
-            }
+            // 무기 미장착 시
+            weaponNameText.text = "맨손";
+            attackPowerText.text = string.Format(statFormat, 0, playerStats.bonusAttackPower);
+            defenseText.text = playerHealth.defense.ToString();
+            bonusHealthText.text = (playerHealth.baseMaxHealth - 100).ToString();
+            moveSpeedText.text = playerController.moveSpeed.ToString("F1");
+            dashForceText.text = playerController.dashForce.ToString("F1");
+            dashDurationText.text = "0.00";
+            dashCooldownText.text = "0.00";
         }
     }
-    
+}

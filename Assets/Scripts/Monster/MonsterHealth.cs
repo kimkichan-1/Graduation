@@ -6,6 +6,7 @@ public class MonsterHealth : MonoBehaviour
 {
     public int maxHealth = 300; // 최대 체력
     public int defense = 0;     // 방어력
+    public int xpValue = 10;    // 사망 시 제공할 경험치
     private int currentHealth;  // 현재 체력
     private Animator animator;  // 애니메이터 컴포넌트
     private AudioSource audioSource; // 사운드 재생을 위한 컴포넌트
@@ -170,6 +171,13 @@ public class MonsterHealth : MonoBehaviour
         if (isDead) return;
 
         isDead = true; // 사망 상태로 전환
+
+        // 플레이어에게 경험치 제공
+        PlayerStats playerStats = FindObjectOfType<PlayerStats>();
+        if (playerStats != null)
+        {
+            playerStats.AddXp(xpValue);
+        }
 
         if (animator != null)
             animator.SetTrigger("isDead");
