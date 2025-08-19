@@ -4,6 +4,9 @@ using System.Collections;
 // 플레이어의 이동, 점프, 대시, 벽 슬라이드, 적과의 상호작용 등을 제어하는 스크립트
 public class PlayerController : MonoBehaviour
 {
+    // ========================== UI 참조 ==========================
+    public StatsUIManager statsUIManager; // 스탯 UI 관리자
+
     // ========================== 설정 값 ==========================
     [Header("운동 설정")] // Unity Inspector에서 '운동 설정' 섹션을 그룹화
     // 점프 시 적용되는 힘
@@ -141,6 +144,12 @@ public class PlayerController : MonoBehaviour
 
         // 기본 이동 속도 저장
         originalMoveSpeed = moveSpeed;
+
+        // 시작 시 UI 업데이트 (무기 없음 상태)
+        if (statsUIManager != null)
+        {
+            statsUIManager.UpdateStatsUI(null);
+        }
     }
 
     // 매 프레임 호출
@@ -474,6 +483,10 @@ public class PlayerController : MonoBehaviour
         // 검 장착 사운드 재생
         if (swordEquipSound != null)
             playerAudio.PlayOneShot(swordEquipSound);
+
+        // UI 업데이트
+        if (statsUIManager != null)
+            statsUIManager.UpdateStatsUI(currentWeaponStats);
     }
 
     // 창 장착
@@ -497,6 +510,10 @@ public class PlayerController : MonoBehaviour
         // 창 장착 사운드 재생
         if (lanceEquipSound != null)
             playerAudio.PlayOneShot(lanceEquipSound);
+
+        // UI 업데이트
+        if (statsUIManager != null)
+            statsUIManager.UpdateStatsUI(currentWeaponStats);
     }
 
     // 철퇴 장착
@@ -520,6 +537,10 @@ public class PlayerController : MonoBehaviour
         // 철퇴 장착 사운드 재생
         if (maceEquipSound != null)
             playerAudio.PlayOneShot(maceEquipSound);
+
+        // UI 업데이트
+        if (statsUIManager != null)
+            statsUIManager.UpdateStatsUI(currentWeaponStats);
     }
 
     // 대시 상태 반환
