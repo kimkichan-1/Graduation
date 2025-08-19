@@ -39,11 +39,6 @@ public class PlayerHealth : MonoBehaviour
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
-        if (healthSlider != null)
-        {
-            healthSlider.maxValue = maxHealth;
-            healthSlider.value = currentHealth;
-        }
         UpdateHealthUI();
     }
 
@@ -54,8 +49,6 @@ public class PlayerHealth : MonoBehaviour
         float healthPercent = (float)currentHealth / previousMaxHealth;
         currentHealth = Mathf.RoundToInt(maxHealth * healthPercent);
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        if (healthSlider != null)
-            healthSlider.maxValue = maxHealth;
         UpdateHealthUI();
     }
 
@@ -63,7 +56,6 @@ public class PlayerHealth : MonoBehaviour
     {
         if (isDead || isInvincible) return;
 
-        // 방어력을 적용하여 최종 데미지 계산 (최소 1 데미지 보장)
         int finalDamage = Mathf.Max(1, amount - defense);
         currentHealth -= finalDamage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
@@ -99,6 +91,8 @@ public class PlayerHealth : MonoBehaviour
     {
         if (healthSlider != null)
         {
+            // 항상 maxValue를 먼저 업데이트하여 슬라이더의 비율이 정확하게 계산되도록 함
+            healthSlider.maxValue = maxHealth;
             healthSlider.value = currentHealth;
         }
         if (healthText != null)
@@ -115,12 +109,11 @@ public class PlayerHealth : MonoBehaviour
         onPlayerDeath?.Invoke();
     }
 
-    // 레벨업 등으로 영구적인 최대 체력 증가
     public void AddPermanentHealth(int amount)
     {
         baseMaxHealth += amount;
         maxHealth += amount;
-        Heal(amount); // 증가량만큼 즉시 회복
+        Heal(amount); // Heal이 UpdateHealthUI를 호출하여 모든 UI를 갱신
     }
 
     public IEnumerator StartInvincibility(float duration = -1f, bool blink = true)

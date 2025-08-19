@@ -8,6 +8,7 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Permanent Stat Bonuses")]
     public int bonusAttackPower = 0;
+    public float bonusMoveSpeed = 0f;
 
     // 스탯 강화를 위해 다른 컴포넌트 참조
     private PlayerController playerController;
@@ -88,8 +89,8 @@ public class PlayerStats : MonoBehaviour
 
     public void UpgradeMoveSpeed()
     {
-        playerController.moveSpeed += 0.5f;
-        Debug.Log("이동 속도 증가!");
+        bonusMoveSpeed += 0.5f;
+        Debug.Log("이동 속도 보너스 증가! 현재 보너스: " + bonusMoveSpeed);
         FinishUpgrade();
     }
 
@@ -100,9 +101,9 @@ public class PlayerStats : MonoBehaviour
             uiManager.ShowLevelUpPanel(false);
         }
 
-        // UI를 새로운 스탯으로 업데이트
         if (playerController != null)
         {
+            playerController.RecalculateStats(); // 플레이어 최종 스탯 재계산 요청
             playerController.UpdateAllStatsUI();
         }
 

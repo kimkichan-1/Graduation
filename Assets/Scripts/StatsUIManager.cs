@@ -23,7 +23,7 @@ public class StatsUIManager : MonoBehaviour
             attackPowerText.text = string.Format(statFormat, weapon.attackPower, playerStats.bonusAttackPower);
             defenseText.text = string.Format(statFormat, weapon.defense, playerHealth.defense);
             bonusHealthText.text = string.Format(statFormat, weapon.bonusHealth, playerHealth.baseMaxHealth - 100); // 100을 기본 체력으로 가정
-            moveSpeedText.text = playerController.moveSpeed.ToString("F1");
+            moveSpeedText.text = string.Format(statFormat, weapon.moveSpeed, playerStats.bonusMoveSpeed);
             dashForceText.text = weapon.dashForce.ToString("F1");
             dashDurationText.text = weapon.dashDuration.ToString("F2");
             dashCooldownText.text = weapon.dashCooldown.ToString("F2");

@@ -10,9 +10,10 @@ public class PlayerController : MonoBehaviour
 
     // ========================== 설정 값 ==========================
     [Header("운동 설정")]
+    public float baseMoveSpeed = 5f; // 플레이어의 기본 이동 속도
+    public float moveSpeed; // 실제 이동에 사용될 최종 이동 속도
     public float jumpForce = 300f;
     public float wallJumpForce = 300f;
-    public float moveSpeed = 5f;
     public float attackMoveSpeed = 1f;
     public float dashForce = 10f;
     public float dashDuration = 0.2f;
@@ -45,7 +46,7 @@ public class PlayerController : MonoBehaviour
     private bool hasAirDashed = false;
     private bool isTouchingWall = false;
     private bool isWallSliding = false;
-    private float originalMoveSpeed;
+    private float originalMoveSpeed; // 속도 감소 효과에 사용될 임시 저장 변수
     private Vector2 lastContactNormal = Vector2.zero;
 
     [HideInInspector] public bool hasSword, canMove = true, isAttacking, hasLance, hasMace;
@@ -73,8 +74,8 @@ public class PlayerController : MonoBehaviour
         playerAudio = GetComponent<AudioSource>();
         walkAudioSource = gameObject.AddComponent<AudioSource>();
         walkAudioSource.loop = true;
-        originalMoveSpeed = moveSpeed;
-
+        
+        RecalculateStats(); // 초기 스탯 계산
         UpdateAllStatsUI();
     }
 
@@ -261,7 +262,7 @@ public class PlayerController : MonoBehaviour
     {
         moveSpeed *= speedReductionFactor;
         yield return new WaitForSeconds(speedReductionDuration);
-        moveSpeed = originalMoveSpeed;
+        moveSpeed = originalMoveSpeed; // 원래 속도로 복구
     }
 
     private void Flip()
@@ -277,17 +278,29 @@ public class PlayerController : MonoBehaviour
     private void EquipWeapon(WeaponStats newStats, AudioClip equipSound)
     {
         currentWeaponStats = newStats;
+        if (playerHealth != null && currentWeaponStats != null) 
+            playerHealth.ApplyBonusHealth(currentWeaponStats.bonusHealth);
+        
+        if (equipSound != null) playerAudio.PlayOneShot(equipSound);
+        
+        RecalculateStats(); // 무기 장착 후 스탯 재계산
+        UpdateAllStatsUI();
+    }
+
+    public void RecalculateStats()
+    {
+        float weaponMoveSpeed = 0f;
         if (currentWeaponStats != null)
         {
-            moveSpeed = currentWeaponStats.moveSpeed;
-            originalMoveSpeed = moveSpeed;
+            weaponMoveSpeed = currentWeaponStats.moveSpeed;
             dashForce = currentWeaponStats.dashForce;
             dashCooldown = currentWeaponStats.dashCooldown;
             dashDuration = currentWeaponStats.dashDuration;
-            if (playerHealth != null) playerHealth.ApplyBonusHealth(currentWeaponStats.bonusHealth);
         }
-        if (equipSound != null) playerAudio.PlayOneShot(equipSound);
-        UpdateAllStatsUI();
+
+        float finalMoveSpeed = (weaponMoveSpeed > 0) ? weaponMoveSpeed : baseMoveSpeed;
+        moveSpeed = finalMoveSpeed + playerStats.bonusMoveSpeed;
+        originalMoveSpeed = moveSpeed;
     }
 
     public void UpdateAllStatsUI()
