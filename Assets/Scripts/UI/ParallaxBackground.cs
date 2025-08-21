@@ -13,6 +13,11 @@ public class ParallaxBackground : MonoBehaviour
 
     void Start()
     {
+        if (cameraTransform == null)
+        {
+            cameraTransform = Camera.main.transform;
+        }
+
         lastCameraPosition = new Vector3(Mathf.Clamp(cameraTransform.position.x, minX, maxX), cameraTransform.position.y, cameraTransform.position.z);
         
         if (infiniteScroll && textureUnitSizeX == 0)

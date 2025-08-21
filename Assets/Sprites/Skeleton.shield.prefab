@@ -549,10 +549,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   defense: 20
-  xpValue: 10
+  xpValue: 15
   healthBar: {fileID: 6457116286691334732}
   damageTextPrefab: {fileID: 7576095758979449151, guid: 0a244c659ebae43479b80c1af3134bab, type: 3}
-  damageTextOffset: {x: 0, y: 1, z: 0}
+  damageTextOffset: {x: 0, y: 1, z: 5}
   deathSound: {fileID: 8300000, guid: c9714660cfc35d6478be74715399759c, type: 3}
   hitSound: {fileID: 8300000, guid: 84ddfa36f41743b499bcdce5b2de8c59, type: 3}
   deathAnimationDuration: 0.6

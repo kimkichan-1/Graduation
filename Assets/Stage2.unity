@@ -356,7 +356,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93d47e53ebb0b5c49921b4c4b2d8e915, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraTransform: {fileID: 553581016}
+  cameraTransform: {fileID: 0}
   parallaxEffect: 0.9
   infiniteScroll: 0
   textureUnitSizeX: 0
@@ -374,7 +374,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ff379ae5c25df2429b9705d4e08cc3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraTransform: {fileID: 553581016}
+  cameraTransform: {fileID: 0}
   parallaxEffect: 1
   infiniteScroll: 0
   textureUnitSizeY: 0
@@ -1539,11 +1539,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 510746211}
   m_CullTransparentMesh: 1
---- !u!4 &553581016 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2489296505329471377, guid: e6cc01331aac9c6488c9a2e6a0d633d6, type: 3}
-  m_PrefabInstance: {fileID: 725834127}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &561517264
 GameObject:
   m_ObjectHideFlags: 0
