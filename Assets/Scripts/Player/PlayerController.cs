@@ -38,6 +38,10 @@ public class PlayerController : MonoBehaviour
     [Header("사운드 설정")]
     public AudioClip jumpSound, walkSound, defaultDashSound, swordDashSound, maceDashSound, lanceDashSound, swordEquipSound, lanceEquipSound, maceEquipSound, landSound, wallSlideSound;
 
+    [Header("메이스 대쉬 설정")]
+    public float maceKnockbackRadius = 2.0f;
+    public float maceKnockbackForce = 15f;
+
     // ========================== 상태 변수 ==========================
     private int jumpCount = 0;
     private bool isGrounded = false;
@@ -166,6 +170,11 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator Dash()
     {
+        if (hasMace)
+        {
+            PerformMaceDashKnockback();
+        }
+
         isDashing = true;
         canDash = false;
         animator.SetBool("Dash", true);
@@ -334,4 +343,23 @@ public class PlayerController : MonoBehaviour
     }
 
     public bool IsDashing() { return isDashing; }
+
+    // 메이스 대쉬 넉백 기능
+    private void PerformMaceDashKnockback()
+    {
+        LayerMask monsterLayer = LayerMask.GetMask("Enemy");
+        float staggerDuration = 0.5f; // 넉백 시 몬스터가 경직될 시간
+
+        Collider2D[] hitMonsters = Physics2D.OverlapCircleAll(transform.position, maceKnockbackRadius, monsterLayer);
+
+        foreach (Collider2D monsterCollider in hitMonsters)
+        {
+            MonsterController monster = monsterCollider.GetComponent<MonsterController>();
+            if (monster != null)
+            {
+                Vector2 knockbackDirection = (monster.transform.position - transform.position).normalized;
+                monster.ApplyKnockback(knockbackDirection, maceKnockbackForce, staggerDuration);
+            }
+        }
+    }
 }

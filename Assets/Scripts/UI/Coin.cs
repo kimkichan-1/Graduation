@@ -1,24 +1,33 @@
 using UnityEngine;
 using System.Collections;
 
+[RequireComponent(typeof(AudioSource))] // AudioSource 컴포넌트가 항상 있도록 보장
 public class Coin : MonoBehaviour
 {
     private enum CoinState { Ejected, Waiting, Seeking }
     private CoinState currentState = CoinState.Ejected;
 
+    [Header("Movement")]
     public float moveSpeed = 15f;
+    public float seekDelay = 0.5f;
+
+    [Header("Data")]
     public int goldAmount = 0;
-    public float seekDelay = 0.5f; // 땅에 떨어진 후 플레이어를 향해 날아갈 때까지의 딜레이
+
+    [Header("Audio")]
+    public AudioClip hitSound;
 
     private Transform target;
     private PlayerStats playerStats;
     private Rigidbody2D rb;
     private CircleCollider2D col;
+    private AudioSource audioSource;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<CircleCollider2D>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -52,6 +61,10 @@ public class Coin : MonoBehaviour
     {
         if (currentState == CoinState.Ejected && collision.gameObject.CompareTag("Ground"))
         {
+            if (hitSound != null)
+            {
+                audioSource.PlayOneShot(hitSound);
+            }
             StartCoroutine(StartSeekingRoutine());
         }
     }

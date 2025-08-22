@@ -44,7 +44,9 @@ public class MonsterController : MonoBehaviour
     private bool isChasingPlayer = false;
     private bool canAttack = true;
     private bool isAttacking = false;
+    private bool isStaggered = false;
     private Transform player;
+    private Coroutine attackCoroutine = null; // 공격 코루틴을 저장할 변수
 
     private readonly int speedHash = Animator.StringToHash("Speed");
     private readonly int attackHash = Animator.StringToHash("Attack");
@@ -69,7 +71,7 @@ public class MonsterController : MonoBehaviour
 
     void Update()
     {
-        if (monsterHealth != null && monsterHealth.IsDead) return;
+        if (monsterHealth != null && monsterHealth.IsDead || isStaggered) return;
 
         DetectPlayer();
 
@@ -90,7 +92,8 @@ public class MonsterController : MonoBehaviour
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
             if (distanceToPlayer <= attackRadius && canAttack && !isAttacking)
             {
-                StartCoroutine(AttackPlayer());
+                // 공격 코루틴을 변수에 저장
+                attackCoroutine = StartCoroutine(AttackPlayer());
             }
         }
         else
@@ -138,14 +141,14 @@ public class MonsterController : MonoBehaviour
 
         yield return new WaitForSeconds(1f); // 공격 애니메이션 시간
 
-        // 공격 후 0.5초 경직
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.3f); // 공격 후 경직
 
         isAttacking = false;
         isMoving = true;
 
         yield return new WaitForSeconds(attackCooldown);
         canAttack = true;
+        attackCoroutine = null; // 코루틴이 끝나면 참조를 null로 초기화
     }
 
     private void UpdateSpriteDirection()
@@ -169,7 +172,7 @@ public class MonsterController : MonoBehaviour
     {
         while (true)
         {
-            if (isChasingPlayer || isAttacking)
+            if (isChasingPlayer || isAttacking || isStaggered)
             {
                 yield return null;
                 continue;
@@ -274,4 +277,33 @@ public class MonsterController : MonoBehaviour
     public bool IsMovingRight => isMovingRight;
     public bool IsMoving => isMoving;
     public bool IsChasingPlayer => isChasingPlayer;
+
+    public void ApplyKnockback(Vector2 direction, float force, float staggerDuration)
+    {
+        if (monsterHealth != null && monsterHealth.IsDead || isStaggered) return;
+
+        // 진행 중인 공격이 있었다면 중단
+        if (attackCoroutine != null)
+        {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+            isAttacking = false;
+            canAttack = true; // 공격을 즉시 다시 할 수 있게 할지, 아니면 쿨다운을 적용할지 결정 필요
+        }
+
+        rb.velocity = Vector2.zero;
+        rb.AddForce(direction * force, ForceMode2D.Impulse);
+
+        // Hurt 애니메이션 재생
+        if (animator != null) animator.SetTrigger("isKnockedBack");
+
+        StartCoroutine(Stagger(staggerDuration));
+    }
+
+    private IEnumerator Stagger(float duration)
+    {
+        isStaggered = true;
+        yield return new WaitForSeconds(duration);
+        isStaggered = false;
+    }
 }

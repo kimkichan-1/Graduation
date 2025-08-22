@@ -1922,8 +1922,10 @@ MonoBehaviour:
   player: {fileID: 1523213197}
   minX: -5
   maxX: 23
-  minY: 2
-  maxY: 10
+  defaultMinY: 2
+  defaultMaxY: 10
+  undergroundMinY: -10
+  undergroundMaxY: -2
 --- !u!1 &547409562
 GameObject:
   m_ObjectHideFlags: 0
@@ -3980,6 +3982,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   defense: 20
+  xpValue: 10
   healthBar: {fileID: 563010988}
   damageTextPrefab: {fileID: 7576095758979449151, guid: 0a244c659ebae43479b80c1af3134bab, type: 3}
   damageTextOffset: {x: 0, y: 1, z: 0}
@@ -3999,18 +4002,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
-  moveDuration: 2
-  pauseDuration: 1
-  moveRange: 5
+  minMoveDuration: 1
+  maxMoveDuration: 3
+  minPauseDuration: 0.5
+  maxPauseDuration: 2
   detectionRadius: 4
   attackRadius: 2.5
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
   attackDamage: 10
   attackCooldown: 0.5
   attackSound: {fileID: 0}
   attackHitbox: {fileID: 853901986}
+  wallCheck: {fileID: 0}
+  ledgeCheck: {fileID: 0}
+  wallCheckDistance: 0.1
+  ledgeCheckDistance: 0.2
+  walkSound: {fileID: 0}
 --- !u!1 &1221824254
 GameObject:
   m_ObjectHideFlags: 0
@@ -5291,9 +5303,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36b8b509b01c2ee44b88d0ba2db4e970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  statsUIManager: {fileID: 0}
+  baseMoveSpeed: 5
+  moveSpeed: 6
   jumpForce: 300
   wallJumpForce: 50
-  moveSpeed: 6
   attackMoveSpeed: 0.4
   dashForce: 12
   dashDuration: 0.4
@@ -5334,7 +5348,6 @@ MonoBehaviour:
     dashForce: 0
     dashDuration: 0
     dashCooldown: 0
-  playerHealth: {fileID: 0}
 --- !u!82 &1523213203
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5487,6 +5500,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMaxHealth: 100
   maxHealth: 100
+  defense: 0
   healthSlider: {fileID: 2055839685}
   healthText: {fileID: 859146544}
   animator: {fileID: 1523213198}
