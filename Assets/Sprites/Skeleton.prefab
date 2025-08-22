@@ -692,14 +692,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fda212d1d7d2626418c0a6bb0d8f9d2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  possibleDrops:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  dropChance: 0.5
-  dropOffset: {x: 0, y: 0.5, z: 0}
+  coinPrefab: {fileID: 1806965868320496998, guid: f11af72e0dfbf82479d8e5d54691c1b3, type: 3}
   baseGoldDrop: 100
   goldDropRange: 0.2
+  minCoinCount: 3
+  maxCoinCount: 5
+  dropForce: 5
 --- !u!1 &8664533459541306059
 GameObject:
   m_ObjectHideFlags: 0
