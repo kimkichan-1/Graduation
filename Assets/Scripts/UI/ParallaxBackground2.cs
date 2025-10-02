@@ -19,7 +19,7 @@ public class ParallaxBackground2 : MonoBehaviour
         }
 
         lastCameraPosition = new Vector3(cameraTransform.position.x, Mathf.Clamp(cameraTransform.position.y, minY, maxY), cameraTransform.position.z);
-        
+
         if (infiniteScroll && textureUnitSizeY == 0)
         {
             Sprite sprite = GetComponent<SpriteRenderer>().sprite;
@@ -33,9 +33,10 @@ public class ParallaxBackground2 : MonoBehaviour
 
     void LateUpdate()
     {
+
         float clampedCameraY = Mathf.Clamp(cameraTransform.position.y, minY, maxY);
         Vector3 currentCameraPosition = new Vector3(cameraTransform.position.x, clampedCameraY, cameraTransform.position.z);
-        
+
         Vector3 deltaMovement = currentCameraPosition - lastCameraPosition;
         transform.position += new Vector3(0, deltaMovement.y * parallaxEffect, 0);
         lastCameraPosition = currentCameraPosition;

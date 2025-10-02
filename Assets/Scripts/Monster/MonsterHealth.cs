@@ -1,9 +1,21 @@
-using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class MonsterHealth : MonoBehaviour
 {
+    [Header("UI 우선순위 설정")]
+    [Tooltip("다른 UI(레벨업 등)가 먼저 나올 수 있도록 대화창을 띄우기 전 대기하는 시간(초)")]
+    [SerializeField] private float dialogueDelay = 0.5f;
+    // --- ★★★ 이 부분을 추가하세요 ★★★ ---
+    [Header("이벤트 연동")]
+    [Tooltip("이 몬스터가 죽었을 때 활성화시킬 석상 (선택사항)")]
+    [TextArea(3, 10)] // Inspector에서 여러 줄로 편하게 입력
+    public string[] deathDialogue;
+    public StatueInteraction targetStatue;
+    // --- 여기까지 ---
+
     public int maxHealth = 300; // 최대 체력
     public int defense = 0;     // 방어력
     public int xpValue = 10;    // 사망 시 제공할 경험치
@@ -167,39 +179,44 @@ public class MonsterHealth : MonoBehaviour
     // 사망 처리 메서드
     private void Die()
     {
-        // 이미 사망 상태면 중복 처리 방지
         if (isDead) return;
+        isDead = true;
 
-        isDead = true; // 사망 상태로 전환
+        StartCoroutine(DieRoutine());
+    }
 
-        // 플레이어에게 경험치 제공
+    private IEnumerator DieRoutine()
+    {
+        // 1. 경험치 우선 지급 (레벨업 이벤트 발생)
         PlayerStats playerStats = FindFirstObjectByType<PlayerStats>();
-        if (playerStats != null)
+        if (playerStats != null) playerStats.AddXp(xpValue);
+
+        // 2. 사망 애니메이션, 사운드 등 즉시 처리
+        if (animator != null) animator.SetTrigger("isDead");
+        if (deathSound != null) audioSource.PlayOneShot(deathSound);
+        if (healthBar != null) healthBar.gameObject.SetActive(false);
+
+        // 3. 레벨업 창이 먼저 뜰 수 있도록 잠시 대기
+        yield return new WaitForSeconds(dialogueDelay);
+
+        // 4. 보스 처치 대화창 이벤트 실행
+        MidBossController bossEventController = GetComponent<MidBossController>();
+        if (bossEventController != null)
         {
-            playerStats.AddXp(xpValue);
+            bossEventController.TriggerDeathEvent();
         }
 
-        if (animator != null)
-            animator.SetTrigger("isDead");
-
-        // 사망 사운드 재생
-        if (deathSound != null && audioSource != null)
-        {
-            audioSource.PlayOneShot(deathSound);
-        }
-        
-        // 사망 시 체력바 비활성화
-        if (healthBar != null)
-            healthBar.gameObject.SetActive(false);
-
-        // 사망 애니메이션 재생 후 파괴
+        // 5. 아이템 드랍
         ItemDrop itemDropper = GetComponent<ItemDrop>();
         if (itemDropper != null)
         {
             itemDropper.GenerateDrops();
         }
+
+        // --- ★★★ 수정된 부분: 직접 파괴하는 대신, DestroyAfterAnimation 코루틴을 호출합니다. ★★★ ---
         StartCoroutine(DestroyAfterAnimation());
     }
+
 
     // 사망 애니메이션 재생 후 오브젝트 파괴
     private IEnumerator DestroyAfterAnimation()

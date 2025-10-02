@@ -12,6 +12,12 @@ EditorBuildSettings:
     path: Assets/HowToPlay.unity
     guid: 51f4df846c954cc4689bffd9e2fbf05b
   - enabled: 1
+    path: Assets/Setting.unity
+    guid: cabbb67c00dee4a45b69715227fb4e0d
+  - enabled: 1
+    path: Assets/Weapon.unity
+    guid: 1260fdaddd91b294e8cdc945feb9abe8
+  - enabled: 1
     path: Assets/Stage1.unity
     guid: c6531a22ffcdecc4f9252a174f9b815e
   - enabled: 1
@@ -20,5 +26,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Stage2.unity
     guid: 60e852e4d4857b24996eeedfce167c96
+  - enabled: 1
+    path: Assets/AncientBlacksmith.unity
+    guid: fd72664cf9d575b4ab31b9f98eed7c0a
+  - enabled: 1
+    path: Assets/LifeHeartMap.unity
+    guid: db665280b5439524aa54dd2bd21b2819
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

@@ -7,7 +7,7 @@ AnimationClip:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Attack1_Skel
-  serializedVersion: 6
+  serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
   m_UseHighQualityCurve: 1
@@ -18,7 +18,8 @@ AnimationClip:
   m_ScaleCurves: []
   m_FloatCurves: []
   m_PPtrCurves:
-  - curve:
+  - serializedVersion: 2
+    curve:
     - time: 0.13333334
       value: {fileID: 290073283, guid: 4e8481a1724c55a48b520bcf5ba61b38, type: 3}
     - time: 0.26666668
@@ -39,6 +40,7 @@ AnimationClip:
     path: 
     classID: 212
     script: {fileID: 0}
+    flags: 2
   m_SampleRate: 60
   m_WrapMode: 0
   m_Bounds:
@@ -53,6 +55,8 @@ AnimationClip:
       typeID: 212
       customType: 23
       isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
     pptrCurveMapping:
     - {fileID: 290073283, guid: 4e8481a1724c55a48b520bcf5ba61b38, type: 3}
     - {fileID: -846894688, guid: 4e8481a1724c55a48b520bcf5ba61b38, type: 3}
@@ -101,7 +105,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.93333334
+  - time: 0.8666667
     functionName: DisableAttackHitbox
     data: 
     objectReferenceParameter: {fileID: 0}
