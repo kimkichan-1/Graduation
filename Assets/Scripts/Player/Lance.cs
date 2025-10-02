@@ -84,7 +84,7 @@ public class Lance : MonoBehaviour
     }
 
     // 첫 번째 공격 (Attack1) 처리
-    private IEnumerator Attack1()
+    public IEnumerator Attack1()
     {
         isAttacking = true;
         playerController.isAttacking = true; // 이동 제한 설정

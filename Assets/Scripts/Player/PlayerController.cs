@@ -1,7 +1,13 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 using System.Collections;
 
+// 이 스크립트를 실행하는 데 반드시 필요한 컴포넌트들을 명시하여 오류를 방지합니다.
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(PlayerStats))]
+[RequireComponent(typeof(PlayerHealth))]
 public class PlayerController : MonoBehaviour
 {
     // ========================== UI 참조 ==========================
@@ -51,7 +57,7 @@ public class PlayerController : MonoBehaviour
     private bool hasAirDashed = false;
     private bool isTouchingWall = false;
     private bool isWallSliding = false;
-    private float originalMoveSpeed; // 속도 감소 효과에 사용될 임시 저장 변수
+    private float originalMoveSpeed;
     private Vector2 lastContactNormal = Vector2.zero;
 
     [HideInInspector] public bool hasSword, canMove = true, isAttacking, hasLance, hasMace;
@@ -77,27 +83,27 @@ public class PlayerController : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 씬에 PlayerSpawnPoint가 있는지 찾습니다.
         PlayerSpawnPoint spawnPoint = FindFirstObjectByType<PlayerSpawnPoint>();
         if (spawnPoint != null)
         {
-            // 스폰 포인트가 있으면 플레이어를 그 위치로 이동시킵니다.
             transform.position = spawnPoint.transform.position;
         }
     }
 
     private void Awake()
     {
+        // RequireComponent 덕분에 이 컴포넌트들은 항상 존재함이 보장됩니다.
         playerHealth = GetComponent<PlayerHealth>();
         playerStats = GetComponent<PlayerStats>();
         lanceAttack = GetComponent<LanceAttack>();
+        playerRigidbody = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        playerAudio = GetComponent<AudioSource>();
     }
 
     private void Start()
     {
-        playerRigidbody = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
-        playerAudio = GetComponent<AudioSource>();
+        // walkAudioSource는 별도로 추가되므로 여기서 생성합니다.
         walkAudioSource = gameObject.AddComponent<AudioSource>();
         walkAudioSource.loop = true;
         
@@ -107,6 +113,42 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // ★★★ GameManager와의 연동을 위한 핵심 로직 ★★★
+        // GameManager가 존재하고, 현재 상태가 '전투'라면 모든 입력을 무시합니다.
+        if (GameManager.Instance != null && GameManager.Instance.currentState == GameState.Battle)
+        {
+            // 혹시 남아있을 수 있는 물리적 움직임을 강제로 멈춥니다.
+            if (playerRigidbody.linearVelocity.sqrMagnitude > 0)
+            {
+                playerRigidbody.linearVelocity = Vector2.zero;
+                animator.SetFloat("Speed", 0f);
+            }
+            return; // Update 함수의 나머지 부분을 실행하지 않고 종료
+        }
+        
+        // --- 아래는 원래의 Update 로직 (필드 상태일 때만 실행됨) ---
+        if (isDashing) return;
+        
+        if (turnManager != null)
+        {
+            if (isPlanning)
+            {
+                HandleAttackInput();
+            }
+
+            if (canExecuteTurn && Input.GetKeyDown(KeyCode.Space))
+            {
+                turnManager.StartTurnExecution();
+            }
+
+            if (!isPlanning)
+            {
+                playerRigidbody.linearVelocity = Vector2.zero;
+                animator.SetFloat("Speed", 0f);
+                return;
+            }
+        }
+        
         if (isDashing) return;
         HandleWallSlide();
         HandleMovement();
@@ -116,6 +158,18 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("HasSword", hasSword);
         animator.SetBool("HasLance", hasLance);
         animator.SetBool("HasMace", hasMace);
+    }
+
+    private void HandleAttackInput()
+    {
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            if (isPlanning)
+            {
+                actionBuffer.Add(attackAction);
+                Debug.Log("공격 행동을 버퍼에 추가했습니다.");
+            }
+        }
     }
 
     private void HandleMovement()
@@ -293,7 +347,7 @@ public class PlayerController : MonoBehaviour
     {
         moveSpeed *= speedReductionFactor;
         yield return new WaitForSeconds(speedReductionDuration);
-        moveSpeed = originalMoveSpeed; // 원래 속도로 복구
+        moveSpeed = originalMoveSpeed;
     }
 
     private void Flip()
@@ -314,7 +368,7 @@ public class PlayerController : MonoBehaviour
         
         if (equipSound != null) playerAudio.PlayOneShot(equipSound);
         
-        RecalculateStats(); // 무기 장착 후 스탯 재계산
+        RecalculateStats();
         UpdateAllStatsUI();
     }
 
@@ -344,11 +398,10 @@ public class PlayerController : MonoBehaviour
 
     public bool IsDashing() { return isDashing; }
 
-    // 메이스 대쉬 넉백 기능
     private void PerformMaceDashKnockback()
     {
         LayerMask monsterLayer = LayerMask.GetMask("Enemy");
-        float staggerDuration = 0.5f; // 넉백 시 몬스터가 경직될 시간
+        float staggerDuration = 0.5f;
 
         Collider2D[] hitMonsters = Physics2D.OverlapCircleAll(transform.position, maceKnockbackRadius, monsterLayer);
 
@@ -361,5 +414,49 @@ public class PlayerController : MonoBehaviour
                 monster.ApplyKnockback(knockbackDirection, maceKnockbackForce, staggerDuration);
             }
         }
+    }
+
+    // ========================== 턴 기반 시스템 변수 ==========================
+    [Header("Turn-Based System")]
+    public ActionData attackAction;
+    private List<ActionData> actionBuffer = new List<ActionData>();
+    private bool isPlanning = false;
+    private bool canExecuteTurn = false;
+    private TurnManager turnManager;
+
+    // ========================== 턴 관련 메서드 ==========================
+    public void StartPlanningPhase()
+    {
+        isPlanning = true;
+        canExecuteTurn = true;
+        actionBuffer.Clear();
+        Debug.Log("플레이어 턴 계획 시작.");
+    }
+    
+    public void ExecuteTurn()
+    {
+        isPlanning = false;
+        canExecuteTurn = false;
+        StartCoroutine(ExecuteActions());
+    }
+    
+    private IEnumerator ExecuteActions()
+    {
+        foreach (var action in actionBuffer)
+        {
+            if (action.type == ActionData.ActionType.Attack)
+            {
+                if (hasSword)
+                    StartCoroutine(GetComponent<Sword>()?.Attack1());
+                else if (hasMace)
+                    StartCoroutine(GetComponent<Mace>()?.Attack1());
+                else if (hasLance)
+                    StartCoroutine(GetComponent<Lance>()?.Attack1());
+                
+                yield return new WaitForSeconds(action.duration);
+            }
+        }
+        
+        TurnManager.instance.OnPlayerActionsComplete();
     }
 }
