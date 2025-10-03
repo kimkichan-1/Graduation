@@ -10,7 +10,7 @@ This is a 2D action RPG game project called "Graduation" built with Unity 6000.0
 
 ### Core Systems Architecture
 
-**Player System**: Built around a modular weapon system with three weapon types (Sword, Lance, Mace), each providing different stats and abilities. The `PlayerController` (Assets/Scripts/Player/PlayerController.cs:5) manages movement, combat, and weapon switching with dynamic stat recalculation. Features advanced movement including wall-sliding, dash mechanics with weapon-specific effects, and stat-based speed modifications.
+**Player System**: Built around a modular weapon system with three weapon types (Sword, Lance, Mace), each providing different stats and abilities. The `PlayerController` (Assets/Scripts/Player/PlayerController.cs:5) manages movement, combat, and weapon switching with dynamic stat recalculation via `RecalculateStats()`. Features advanced movement including wall-sliding, dash mechanics with weapon-specific effects, stat-based speed modifications, and scene-based respawning via `OnSceneLoaded()` listener.
 
 **Weapon System**: Each weapon type has its own attack script (`SwordAttack`, `LanceAttack`, `MaceAttack`) and weapon data (`WeaponStats`). Weapons affect player movement speed, dash properties, and combat abilities. The `WeaponSpawner` (Assets/Scripts/WeaponSpawner.cs:3) uses `GameData.SelectedWeapon` to dynamically instantiate the chosen weapon at scene start with precise positioning.
 
@@ -18,7 +18,9 @@ This is a 2D action RPG game project called "Graduation" built with Unity 6000.0
 
 **Card System**: Implements a card-based mechanic with `CardData` ScriptableObjects, draggable cards (`DraggableCard`), and card inventory management (`CardInventoryUI`).
 
-**Scene Management**: Uses minimal `GameData` static class (Assets/Scripts/GameData.cs:3) for persistent weapon selection between scenes and `DontDestroyOnLoadManager` for cross-scene object persistence. Player positioning handled by `PlayerSpawnPoint` system with automatic scene loading integration.
+**Stats & Progression**: Level-up system managed by `PlayerStats` (Assets/Scripts/Player/PlayerStats.cs:4) with XP tracking, currency system, and permanent stat bonuses. Features deferred level-up UI display for mini-game scenes (e.g., AncientBlacksmith) using `isLevelUpPending` flag. Stats are recalculated when weapons are equipped/unequipped.
+
+**Scene Management**: Uses minimal `GameData` static class (Assets/Scripts/GameData.cs:3) for persistent weapon selection between scenes and `DontDestroyOnLoadManager` for cross-scene object persistence. Player positioning handled by `PlayerSpawnPoint` (Assets/Scripts/Player/PlayerSpawnPoint.cs) system with automatic scene loading integration via `SceneManager.sceneLoaded` events.
 
 ### Project Structure
 
@@ -28,13 +30,15 @@ This is a 2D action RPG game project called "Graduation" built with Unity 6000.0
 - **Assets/Scripts/CardSystem/**: Card-based gameplay mechanics
 - **Assets/**: Scene files (Main.unity, Stage1.unity, Stage2.unity, etc.), sprites, and asset folders
 
-### Key Scripts
+### Key Scripts & Integration Points
 
-- `PlayerController.cs:5`: Main player control with movement, combat, and weapon management
-- `GameData.cs:3`: Static data persistence across scenes
-- `WeaponStats.cs`: ScriptableObject defining weapon properties
-- `Inventory.cs:4`: Singleton inventory management system
-- `StatsUIManager.cs:4`: Centralizes UI stat display updates
+- `PlayerController.cs:5`: Main player control with movement, combat, weapon management, and stat recalculation. Listens to scene load events for respawning.
+- `PlayerStats.cs:4`: Manages level progression, XP, currency, and permanent stat bonuses with scene-aware level-up UI handling
+- `GameData.cs:3`: Static class for cross-scene weapon selection persistence (minimal design - only stores `SelectedWeapon` string)
+- `WeaponStats.cs:4`: Serializable class (not ScriptableObject) defining weapon properties as data structure
+- `Inventory.cs:4`: Singleton inventory with delegate-based callback system for UI updates (`onInventoryChangedCallback`)
+- `StatsUIManager.cs:4`: Centralizes stat display updates, handles both equipped and bare-handed states
+- `WeaponSpawner.cs:3`: Instantiates selected weapon at scene start based on `GameData.SelectedWeapon`
 
 ## Development Commands
 
@@ -91,10 +95,12 @@ Packages are managed through Unity's Package Manager UI or by editing `Packages/
 ## Common Tasks
 
 ### Adding New Weapons
-1. Create new WeaponStats ScriptableObject
-2. Implement weapon-specific attack script inheriting from base patterns
-3. Add weapon handling to PlayerController equip methods
-4. Update UI systems to display new weapon stats
+1. Define weapon stats in a new `WeaponStats` data structure (it's a serializable class, not a ScriptableObject)
+2. Implement weapon-specific attack script (e.g., `SwordAttack`, `LanceAttack`, `MaceAttack`)
+3. Create weapon item script (e.g., `SwordItem`, `LanceItem`, `MaceItem`) for pickup/equip functionality
+4. Add weapon prefab and update `WeaponSpawner` with new case in switch statement
+5. Add weapon equip logic to `PlayerController` and ensure `RecalculateStats()` handles the new weapon
+6. Update `StatsUIManager.cs:4` to display new weapon stats if needed
 
 ### Creating New Stages
 1. Duplicate existing stage scene as template
@@ -103,7 +109,8 @@ Packages are managed through Unity's Package Manager UI or by editing `Packages/
 4. Update scene loading scripts and build settings
 
 ### Modifying Player Stats
-- Update PlayerStats.cs for new stat types
-- Modify StatsUIManager.cs for UI display
-- Ensure RecalculateStats() in PlayerController handles new stats
-- Update weapon stats in ScriptableObjects as needed
+1. Add new stat fields to `PlayerStats.cs:4` (for permanent bonuses) or `WeaponStats.cs:4` (for weapon-specific stats)
+2. Update `StatsUIManager.cs:4` UI fields and `UpdateStatsUI()` method to display the new stat
+3. Modify `PlayerController.RecalculateStats()` to calculate the new stat (base + weapon + bonuses)
+4. If adding a permanent upgradeable stat, add corresponding `Upgrade*()` method in `PlayerStats.cs:4`
+5. Update `WeaponStats` data structures for each weapon to include the new stat values
