@@ -1,70 +1,96 @@
-// PlayerSwimming.cs (수정된 버전)
-
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerSwimming : MonoBehaviour
 {
     [Header("헤엄 설정")]
-    public float swimForce = 4f; // 좌우 이동 힘
-    public float ascendForce = 5f; // K키를 눌렀을 때 위로 솟구치는 힘 (기존 buoyancy 변수를 대체)
-    public float waterDrag = 2f; // 물 저항
+    public float swimSpeed = 4f;     // 좌우 이동 속도
+    public float ascendForce = 5.5f;  // K키를 눌렀을 때 솟구치는 힘
+    public float waterDrag = 1.5f;     // 물의 저항
+    public float gravityScaleInWater = 1f; // 물 속에서의 중력
+
+    [Header("벽 감지 설정")]
+    public Transform wallCheck;
+    public float wallCheckRadius = 0.1f;
+    public LayerMask wallLayer;
 
     private Rigidbody2D rb;
     private float originalGravityScale;
-    private Vector2 moveDirection; // Update에서 계산된 이동 방향
-    private bool ascendInput; // Update에서 감지된 상승 입력
+    private float moveInput; // 수평 입력 값 저장
+
+    private PhysicsMaterial2D noFrictionMaterial;
+    private PhysicsMaterial2D originalMaterial;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        // 이 스크립트가 시작될 때, 플레이어의 자식 중 "WallCheck"를 찾아 자동으로 연결합니다.
+        if (wallCheck == null)
+        {
+            wallCheck = transform.Find("WallCheck");
+        }
+
+        // 마찰력 없는 물리 재질 생성
+        noFrictionMaterial = new PhysicsMaterial2D("NoFriction_Swim");
+        noFrictionMaterial.friction = 0f;
+        noFrictionMaterial.bounciness = 0f;
     }
 
-    // 이 컴포넌트가 활성화될 때 (수영 시작)
+    // 이 스크립트가 활성화될 때 (Stage3Manager가 켜주는 시점)
     void OnEnable()
     {
+        // 원래 물리 값을 저장하고, 물 속 값으로 변경
         originalGravityScale = rb.gravityScale;
-        rb.gravityScale = 0.5f; // 중력 약화
-        rb.linearDamping = waterDrag; // Rigidbody2D의 선형 저항(drag)을 사용
+        rb.gravityScale = gravityScaleInWater;
+        rb.linearDamping = waterDrag;
+
+        originalMaterial = rb.sharedMaterial;
+        rb.sharedMaterial = noFrictionMaterial;
     }
 
-    // 이 컴포넌트가 비활성화될 때 (수영 종료)
+    // 이 스크립트가 비활성화될 때 (다른 스테이지로 갈 때)
     void OnDisable()
     {
+        // 원래 물리 값으로 복구
         rb.gravityScale = originalGravityScale;
-        rb.linearDamping = 0f; // 기본 저항으로 복원
+        rb.linearDamping = 0f;
+        rb.sharedMaterial = originalMaterial;
     }
 
-    // 입력 처리는 매 프레임 실행되는 Update에서 담당합니다.
     void Update()
     {
-        // 좌우 이동 입력
-        float moveX = Input.GetAxis("Horizontal");
-        // 상하 이동 입력 (K키와 별개로, 위아래 방향키로도 움직일 수 있게)
-        float moveY = Input.GetAxis("Vertical");
-        moveDirection = new Vector2(moveX, moveY).normalized;
+        // 좌우 이동 입력을 받습니다.
+        moveInput = Input.GetAxisRaw("Horizontal");
 
-        // K 키를 '눌렀을 때' 상승 입력을 감지합니다.
+        // ★★★ 기존 로직 유지: 'K'키로 상승 ★★★
+        // GetKeyDown은 한 번 눌렀을 때를 감지합니다.
         if (Input.GetKeyDown(KeyCode.K))
         {
-            ascendInput = true;
+            // 위쪽으로 순간적인 힘(Impulse)을 가해 솟구치게 합니다.
+            rb.AddForce(Vector2.up * ascendForce, ForceMode2D.Impulse);
         }
     }
 
-    // 물리 계산은 고정된 시간 간격으로 실행되는 FixedUpdate에서 담당합니다.
     void FixedUpdate()
     {
-        // 좌우 및 상하 방향키 이동 적용
-        rb.AddForce(moveDirection * swimForce);
-
-        // Update에서 K 키 입력이 감지되었다면, 위로 힘을 가합니다.
-        if (ascendInput)
+        // 벽 감지
+        bool isTouchingWall = false;
+        if (wallCheck != null)
         {
-            // 위쪽 방향으로 순간적인 힘(Impulse)을 가해 솟구치는 느낌을 줍니다.
-            rb.AddForce(Vector2.up * ascendForce, ForceMode2D.Impulse);
-
-            // 힘을 한번만 적용하기 위해 바로 false로 바꿔줍니다.
-            ascendInput = false;
+            isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayer);
         }
+
+        float currentMoveSpeed = swimSpeed;
+
+        // 벽에 닿았고, 그 방향으로 계속 이동하려고 하면 수평 이동 속도를 0으로 만듦
+        if (isTouchingWall && ((moveInput > 0 && transform.localScale.x > 0) || (moveInput < 0 && transform.localScale.x < 0)))
+        {
+            currentMoveSpeed = 0;
+        }
+
+        // ★★★ 기존 로직 유지: 반응성 좋은 좌우 이동 ★★★
+        // AddForce 대신, velocity를 직접 제어하여 즉각적인 움직임을 만듭니다.
+        rb.linearVelocity = new Vector2(moveInput * currentMoveSpeed, rb.linearVelocity.y);
     }
 }

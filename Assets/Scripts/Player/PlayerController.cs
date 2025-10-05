@@ -177,7 +177,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMovement()
     {
-        if (swimmingController != null && swimmingController.enabled) return;
+        
         if (!canMove)
         {
             playerRigidbody.linearVelocity = new Vector2(0, playerRigidbody.linearVelocity.y);
@@ -200,7 +200,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
-        if (swimmingController != null && swimmingController.enabled) return;
+        
         if (!canMove) return;
         if (Input.GetKeyDown(KeyCode.K) && jumpCount < 1)
         {
@@ -260,7 +260,6 @@ public class PlayerController : MonoBehaviour
 
     private void HandleWallSlide()
     {
-        //if (swimmingController != null && swimmingController.enabled) return;
         isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayer);
         if (!isGrounded && isTouchingWall && playerRigidbody.linearVelocity.y < 0)
         {
