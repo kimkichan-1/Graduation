@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Clam_attack
+  m_Name: clam_attack
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -22,11 +22,11 @@ AnimationClip:
     curve:
     - time: 0
       value: {fileID: -8564292514760184845, guid: 07fdf4cd1084933409222ed93d9ef136, type: 3}
-    - time: 0.25
+    - time: 0.16666667
       value: {fileID: -7439139842679216242, guid: 07fdf4cd1084933409222ed93d9ef136, type: 3}
-    - time: 0.5
+    - time: 0.33333334
       value: {fileID: 8222650145025256864, guid: 0c71356d0324c3040ba0d8cb8dea440b, type: 3}
-    - time: 0.75
+    - time: 0.41666666
       value: {fileID: -6129520914695262374, guid: de709bf8026a4aa429067a1ff125f856, type: 3}
     attribute: m_Sprite
     path: 
@@ -59,7 +59,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.78333336
+    m_StopTime: 0.45
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -79,14 +79,14 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 0.28333333
+  - time: 0.33333334
     functionName: EnableAttackHitbox
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.78333336
+  - time: 0.45
     functionName: DisableAttackHitbox
     data: 
     objectReferenceParameter: {fileID: 0}
