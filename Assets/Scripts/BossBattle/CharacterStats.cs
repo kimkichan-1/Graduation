@@ -1,15 +1,18 @@
-// CharacterStats.cs
-
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
 public class CharacterStats : MonoBehaviour
 {
-    [Header("캐릭터 기본 스탯")]
-    public string characterName = "사서";
-    public int maxHp = 50;
+    private PlayerController playerController; // PlayerController 참조
+
+    [Header("전투용 스탯 (PlayerController에서 복사됨)")]
+    public string characterName = "VOID";
+    public int maxHp;
     public int currentHp;
+    public int attackPower;
+    public int defensePower;
+    public float moveSpeed;
 
     [Header("빛(Light) 시스템")]
     public int maxLight = 3;
@@ -18,12 +21,14 @@ public class CharacterStats : MonoBehaviour
     [Header("전투 책장 시스템")]
     public List<CombatPage> deck = new List<CombatPage>(9);
     public Dictionary<CombatPage, int> cardCooldowns = new Dictionary<CombatPage, int>();
-    public List<CombatPage> revealedCards = new List<CombatPage>(); // 사용한 적 있는 카드를 기록
+    public List<CombatPage> revealedCards = new List<CombatPage>();
 
     void Awake()
     {
-        currentHp = maxHp;
-        currentLight = maxLight;
+        // PlayerController가 있는 오브젝트일 경우에만 참조를 가져옴 (보스는 해당 없음)
+        playerController = GetComponent<PlayerController>();
+
+        // 덱 초기화
         foreach (var page in deck)
         {
             if (!cardCooldowns.ContainsKey(page))
@@ -31,6 +36,23 @@ public class CharacterStats : MonoBehaviour
                 cardCooldowns.Add(page, 0);
             }
         }
+    }
+
+    // PlayerController로부터 스탯을 복사해오는 함수
+    public void InitializeFromController()
+    {
+        if (playerController == null)
+        {
+            // 이 오브젝트가 보스처럼 PlayerController가 없는 경우, 이 함수는 아무것도 하지 않음
+            return;
+        }
+
+        Debug.Log("PlayerController로부터 스탯을 복사합니다...");
+        this.maxHp = playerController.maxHp;
+        this.currentHp = playerController.maxHp;
+        this.attackPower = playerController.attackPower;
+        this.defensePower = playerController.defensePower;
+        this.moveSpeed = playerController.baseMoveSpeed;
     }
 
     public void SortDeckByCost()
