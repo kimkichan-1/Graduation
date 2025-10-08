@@ -29,18 +29,15 @@ public class BattleController : MonoBehaviour
     [Header("카메라 컨트롤러")]
     public CameraController mainCameraController;
 
-    // --- 페이지네이션 변수 ---
     private int currentPage = 0;
     private const int cardsPerPage = 3;
-
-    // --- 턴 진행 및 상태 변수 ---
     private bool isPlayerActionsConfirmed = false;
     private bool isViewingBoss = false;
+
     private List<CardUI> displayedCardUIs = new List<CardUI>();
     private List<CardUI> playerActionQueueUI = new List<CardUI>();
     private List<CombatPage> bossActionQueue = new List<CombatPage>();
 
-    // 외부에서 현재 덱 보기 모드를 확인할 수 있는 함수
     public bool IsViewingBossDeck() => isViewingBoss;
 
     void Start()
@@ -73,7 +70,7 @@ public class BattleController : MonoBehaviour
     {
         if (player != null)
         {
-            player.InitializeFromController();
+            player.InitializeFromPlayerScripts();
         }
         
         player.SortDeckByCost();
@@ -221,7 +218,6 @@ public class BattleController : MonoBehaviour
     {
         Debug.Log("======== 새로운 턴 시작 ========");
         
-        // 사용했던 카드 UI 오브젝트들을 파괴하여 정리
         foreach (var ui in playerActionQueueUI) Destroy(ui.gameObject);
         playerActionQueueUI.Clear();
         bossActionQueue.Clear();

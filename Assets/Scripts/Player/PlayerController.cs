@@ -3,22 +3,27 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Collections;
 
-// 이 스크립트를 실행하는 데 반드시 필요한 컴포넌트들을 명시하여 오류를 방지합니다.
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(PlayerStats))]
 [RequireComponent(typeof(PlayerHealth))]
+[RequireComponent(typeof(CharacterStats))]
 public class PlayerController : MonoBehaviour
 {
     // ========================== UI 참조 ==========================
     public StatsUIManager statsUIManager;
     private PlayerStats playerStats;
     private PlayerHealth playerHealth;
+    private CharacterStats characterStats;
 
     // ========================== 설정 값 ==========================
+    [Header("플레이어 기본 스탯 (원본 데이터)")]
+    public int attackPower = 10;
+    public int defensePower = 5;
+    public float baseMoveSpeed = 5f;
+
     [Header("운동 설정")]
-    public float baseMoveSpeed = 5f; // 플레이어의 기본 이동 속도
-    public float moveSpeed; // 실제 이동에 사용될 최종 이동 속도
+    public float moveSpeed; // 실제 이동 속도
     public float jumpForce = 300f;
     public float wallJumpForce = 300f;
     public float attackMoveSpeed = 1f;
@@ -92,9 +97,9 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        // RequireComponent 덕분에 이 컴포넌트들은 항상 존재함이 보장됩니다.
         playerHealth = GetComponent<PlayerHealth>();
         playerStats = GetComponent<PlayerStats>();
+        characterStats = GetComponent<CharacterStats>();
         lanceAttack = GetComponent<LanceAttack>();
         playerRigidbody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -103,30 +108,25 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        // walkAudioSource는 별도로 추가되므로 여기서 생성합니다.
         walkAudioSource = gameObject.AddComponent<AudioSource>();
         walkAudioSource.loop = true;
         
-        RecalculateStats(); // 초기 스탯 계산
+        RecalculateStats();
         UpdateAllStatsUI();
     }
 
     private void Update()
     {
-        // ★★★ GameManager와의 연동을 위한 핵심 로직 ★★★
-        // GameManager가 존재하고, 현재 상태가 '전투'라면 모든 입력을 무시합니다.
         if (BossGameManager.Instance != null && BossGameManager.Instance.currentState == GameState.Battle)
         {
-            // 혹시 남아있을 수 있는 물리적 움직임을 강제로 멈춥니다.
-            if (playerRigidbody.linearVelocity.sqrMagnitude > 0)
+            if (playerRigidbody.velocity.sqrMagnitude > 0)
             {
-                playerRigidbody.linearVelocity = Vector2.zero;
-                animator.SetFloat("Speed", 0f);
+                playerRigidbody.velocity = Vector2.zero;
+                if(animator != null) animator.SetFloat("Speed", 0f);
             }
-            return; // Update 함수의 나머지 부분을 실행하지 않고 종료
+            return;
         }
         
-        // --- 아래는 원래의 Update 로직 (필드 상태일 때만 실행됨) ---
         if (isDashing) return;
         
         if (turnManager != null)
@@ -143,8 +143,8 @@ public class PlayerController : MonoBehaviour
 
             if (!isPlanning)
             {
-                playerRigidbody.linearVelocity = Vector2.zero;
-                animator.SetFloat("Speed", 0f);
+                playerRigidbody.velocity = Vector2.zero;
+                if(animator != null) animator.SetFloat("Speed", 0f);
                 return;
             }
         }
@@ -154,10 +154,13 @@ public class PlayerController : MonoBehaviour
         HandleMovement();
         HandleJump();
         HandleDash();
-        animator.SetBool("Grounded", isGrounded);
-        animator.SetBool("HasSword", hasSword);
-        animator.SetBool("HasLance", hasLance);
-        animator.SetBool("HasMace", hasMace);
+        if(animator != null) 
+        {
+            animator.SetBool("Grounded", isGrounded);
+            animator.SetBool("HasSword", hasSword);
+            animator.SetBool("HasLance", hasLance);
+            animator.SetBool("HasMace", hasMace);
+        }
     }
 
     private void HandleAttackInput()
@@ -176,22 +179,22 @@ public class PlayerController : MonoBehaviour
     {
         if (!canMove)
         {
-            playerRigidbody.linearVelocity = new Vector2(0, playerRigidbody.linearVelocity.y);
-            animator.SetFloat("Speed", 0);
+            playerRigidbody.velocity = new Vector2(0, playerRigidbody.velocity.y);
+            if(animator != null) animator.SetFloat("Speed", 0);
             return;
         }
         if (!isGrounded && Mathf.Abs(lastContactNormal.x) > 0.7f)
         {
-            playerRigidbody.linearVelocity = new Vector2(0, playerRigidbody.linearVelocity.y);
-            animator.SetFloat("Speed", 0);
+            playerRigidbody.velocity = new Vector2(0, playerRigidbody.velocity.y);
+            if(animator != null) animator.SetFloat("Speed", 0);
             return;
         }
         float move = Input.GetAxis("Horizontal");
         float currentSpeed = isAttacking ? attackMoveSpeed : moveSpeed;
-        playerRigidbody.linearVelocity = new Vector2(move * currentSpeed, playerRigidbody.linearVelocity.y);
+        playerRigidbody.velocity = new Vector2(move * currentSpeed, playerRigidbody.velocity.y);
         if (move > 0 && !facingRight) Flip();
         else if (move < 0 && facingRight) Flip();
-        animator.SetFloat("Speed", Mathf.Abs(move));
+        if(animator != null) animator.SetFloat("Speed", Mathf.Abs(move));
     }
 
     private void HandleJump()
@@ -200,14 +203,14 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.K) && jumpCount < 1)
         {
             jumpCount++;
-            playerRigidbody.linearVelocity = Vector2.zero;
+            playerRigidbody.velocity = Vector2.zero;
             playerRigidbody.AddForce(new Vector2(0, jumpForce));
             if (jumpSound != null) playerAudio.PlayOneShot(jumpSound);
             if (jumpDustPrefab != null && dustSpawnPoint != null) Destroy(Instantiate(jumpDustPrefab, dustSpawnPoint.position, Quaternion.identity), 0.4f);
         }
-        else if (Input.GetKeyUp(KeyCode.K) && playerRigidbody.linearVelocity.y > 0)
+        else if (Input.GetKeyUp(KeyCode.K) && playerRigidbody.velocity.y > 0)
         {
-            playerRigidbody.linearVelocity *= 0.5f;
+            playerRigidbody.velocity *= 0.5f;
         }
     }
 
@@ -231,10 +234,10 @@ public class PlayerController : MonoBehaviour
 
         isDashing = true;
         canDash = false;
-        animator.SetBool("Dash", true);
+        if(animator != null) animator.SetBool("Dash", true);
         if (hasSword && playerHealth != null) StartCoroutine(playerHealth.StartInvincibility(dashDuration, blink: false));
         Vector2 dashDirection = facingRight ? Vector2.right : Vector2.left;
-        playerRigidbody.linearVelocity = Vector2.zero;
+        playerRigidbody.velocity = Vector2.zero;
         playerRigidbody.AddForce(dashDirection * dashForce, ForceMode2D.Impulse);
         AudioClip selectedDashSound = hasMace ? maceDashSound : (hasSword ? swordDashSound : (hasLance ? lanceDashSound : defaultDashSound));
         if (selectedDashSound != null) playerAudio.PlayOneShot(selectedDashSound);
@@ -248,7 +251,7 @@ public class PlayerController : MonoBehaviour
         }
         yield return new WaitForSeconds(dashDuration);
         isDashing = false;
-        animator.SetBool("Dash", false);
+        if(animator != null) animator.SetBool("Dash", false);
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
@@ -256,11 +259,11 @@ public class PlayerController : MonoBehaviour
     private void HandleWallSlide()
     {
         isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayer);
-        if (!isGrounded && isTouchingWall && playerRigidbody.linearVelocity.y < 0)
+        if (!isGrounded && isTouchingWall && playerRigidbody.velocity.y < 0)
         {
             isWallSliding = true;
-            playerRigidbody.linearVelocity = new Vector2(playerRigidbody.linearVelocity.x, -wallSlideSpeed);
-            animator.SetBool("Wall", true);
+            playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, -wallSlideSpeed);
+            if(animator != null) animator.SetBool("Wall", true);
             jumpCount = 0;
             if (wallSlideSound != null && !walkAudioSource.isPlaying)
             {
@@ -271,17 +274,17 @@ public class PlayerController : MonoBehaviour
         else
         {
             isWallSliding = false;
-            animator.SetBool("Wall", false);
+            if(animator != null) animator.SetBool("Wall", false);
             if (walkAudioSource.clip == wallSlideSound) walkAudioSource.Stop();
         }
         if (isWallSliding && Input.GetKeyDown(KeyCode.K))
         {
             float wallJumpDir = facingRight ? -1 : 1;
-            playerRigidbody.linearVelocity = Vector2.zero;
+            playerRigidbody.velocity = Vector2.zero;
             playerRigidbody.AddForce(new Vector2(wallJumpDir * moveSpeed * 60f, wallJumpForce));
             Flip();
             isWallSliding = false;
-            animator.SetBool("Wall", false);
+            if(animator != null) animator.SetBool("Wall", false);
             if (walkAudioSource.clip == wallSlideSound) walkAudioSource.Stop();
             StartCoroutine(AllowHorizontalInputAfterWallJump());
         }
@@ -457,6 +460,9 @@ public class PlayerController : MonoBehaviour
             }
         }
         
-        TurnManager.instance.OnPlayerActionsComplete();
+        if (TurnManager.instance != null)
+        {
+            TurnManager.instance.OnPlayerActionsComplete();
+        }
     }
 }
