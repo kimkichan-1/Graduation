@@ -2,8 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-[RequireComponent(typeof(PlayerHealth))]
-[RequireComponent(typeof(PlayerStats))]
+
 public class CharacterStats : MonoBehaviour
 {
     private PlayerController playerController;
