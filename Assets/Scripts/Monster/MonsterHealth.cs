@@ -39,8 +39,8 @@ public class MonsterHealth : MonoBehaviour
 
     [Header("피격 반응 설정")]
     [Range(0f, 1f)]
-    [Tooltip("이 비율 이상의 데미지를 받으면 Hurt 애니메이션 재생 (기본: 0.5 = 50%)")]
-    public float hurtAnimationThreshold = 0.5f; // Hurt 애니메이션 임계값
+    [Tooltip("Hurt 애니메이션이 재생될 확률 (0.0 = 0%, 1.0 = 100%)")]
+    public float hurtAnimationProbability = 0.3f; // Hurt 애니메이션 확률 (기본: 30%)
     public float flashDuration = 0.1f; // 스프라이트 깜빡임 지속 시간
 
     [SerializeField] private AudioClip deathSound; // 사망 사운드 클립
@@ -209,19 +209,18 @@ public class MonsterHealth : MonoBehaviour
             return; // Hurt 애니메이션 실행 방지
         }
 
-        // 데미지 비율 계산 (최대 체력 대비)
-        float damageRatio = (float)finalDamage / maxHealth;
+        // 확률 기반으로 Hurt 애니메이션 재생 여부 결정
+        float randomValue = Random.Range(0f, 1f);
 
-        // 데미지가 임계값 이상이면 Hurt 애니메이션, 아니면 스프라이트만 깜빡임
-        if (damageRatio >= hurtAnimationThreshold)
+        if (randomValue < hurtAnimationProbability)
         {
-            // 큰 데미지: Hurt 애니메이션 재생
+            // 확률에 따라 Hurt 애니메이션 재생
             if (animator != null)
                 animator.SetTrigger("isHurt");
         }
         else
         {
-            // 작은 데미지: 스프라이트만 하얗게 깜빡임
+            // 확률에 해당하지 않으면 스프라이트만 하얗게 깜빡임
             if (spriteRenderer != null)
                 StartCoroutine(FlashWhite());
         }
