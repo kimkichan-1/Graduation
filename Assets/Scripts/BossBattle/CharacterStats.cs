@@ -2,14 +2,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-
 public class CharacterStats : MonoBehaviour
 {
+    // BattleController 참조 변수
+    public BattleController battleController;
+
     private PlayerController playerController;
     private PlayerHealth playerHealth;
     private PlayerStats playerStats;
 
-    [Header("전투용 스탯 (복사본)")]
+    [Header("전투용 스탯")]
     public string characterName = "사서";
     public int maxHp;
     public int currentHp;
@@ -28,6 +30,12 @@ public class CharacterStats : MonoBehaviour
 
     void Awake()
     {
+        // 씬에 있는 BattleController를 찾아서 연결 (보스에게만 필요)
+        if (battleController == null)
+        {
+            battleController = FindObjectOfType<BattleController>();
+        }
+        
         playerController = GetComponent<PlayerController>();
         playerHealth = GetComponent<PlayerHealth>();
         playerStats = GetComponent<PlayerStats>();
@@ -61,17 +69,29 @@ public class CharacterStats : MonoBehaviour
     
     public void TakeDamage(int damage)
     {
-        if (playerHealth != null)
+        if (playerHealth != null) // 플레이어일 경우
         {
             playerHealth.TakeDamage(damage);
             this.currentHp = playerHealth.GetCurrentHealth();
+            
+            if(this.currentHp <= 0)
+            {
+                if (battleController != null)
+                {
+                    battleController.OnCharacterDefeated(this);
+                }
+            }
         }
-        else
+        else // 보스일 경우
         {
             currentHp -= Mathf.Max(1, damage - defensePower);
             Debug.Log($"{characterName}이(가) {damage}의 피해를 입었습니다! 남은 체력: {currentHp}");
             if (currentHp <= 0)
             {
+                if (battleController != null)
+                {
+                    battleController.OnCharacterDefeated(this);
+                }
                 gameObject.SetActive(false);
             }
         }

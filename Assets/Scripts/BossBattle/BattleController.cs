@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class BattleController : MonoBehaviour
 {
@@ -28,19 +29,19 @@ public class BattleController : MonoBehaviour
 
     [Header("카메라 컨트롤러")]
     public CameraController mainCameraController;
+    
+    [Header("승리 연출")]
+    public TextMeshProUGUI victoryText;
+    public string nextStageName = "Stage2";
 
-    // --- 페이지네이션 변수 ---
     private int currentPage = 0;
     private const int cardsPerPage = 3;
-
-    // --- 턴 진행 및 상태 변수 ---
     private bool isPlayerActionsConfirmed = false;
     private bool isViewingBoss = false;
     private List<CardUI> displayedCardUIs = new List<CardUI>();
     private List<CardUI> playerActionQueueUI = new List<CardUI>();
     private List<CombatPage> bossActionQueue = new List<CombatPage>();
 
-    // 외부에서 현재 덱 보기 모드를 확인할 수 있는 함수
     public bool IsViewingBossDeck() => isViewingBoss;
 
     void Start()
@@ -71,6 +72,14 @@ public class BattleController : MonoBehaviour
 
     IEnumerator SetupBattle()
     {
+        if (player == null)
+        {
+            if (PlayerController.Instance != null)
+            {
+                player = PlayerController.Instance.GetComponent<CharacterStats>();
+            }
+        }
+
         if (player != null)
         {
             player.InitializeFromPlayerScripts();
@@ -229,7 +238,6 @@ public class BattleController : MonoBehaviour
         
         foreach (var ui in playerActionQueueUI)
         {
-            // MissingReferenceException 방지를 위해 null 체크
             if(ui != null) Destroy(ui.gameObject);
         }
         playerActionQueueUI.Clear();
@@ -271,5 +279,36 @@ public class BattleController : MonoBehaviour
             if (cardsSelected >= 3) break;
         }
         Debug.Log($"보스가 이번 턴의 행동을 랜덤으로 결정했습니다. (총 {bossActionQueue.Count}개)");
+    }
+    
+    public void OnCharacterDefeated(CharacterStats defeatedCharacter)
+    {
+        if (defeatedCharacter == boss)
+        {
+            StartCoroutine(VictorySequence());
+        }
+        else if (defeatedCharacter == player)
+        {
+            Debug.Log("플레이어가 패배했습니다...");
+        }
+    }
+
+    private IEnumerator VictorySequence()
+    {
+        Debug.Log("보스 처치! 승리했습니다!");
+
+        if (victoryText != null)
+        {
+            victoryText.gameObject.SetActive(true);
+        }
+
+        yield return new WaitForSeconds(10f);
+
+        if (BossGameManager.Instance != null)
+        {
+            BossGameManager.Instance.ChangeState(GameState.Exploration);
+        }
+        
+        SceneManager.LoadScene(nextStageName);
     }
 }

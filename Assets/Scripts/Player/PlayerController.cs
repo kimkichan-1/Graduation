@@ -10,20 +10,21 @@ using System.Collections;
 [RequireComponent(typeof(CharacterStats))]
 public class PlayerController : MonoBehaviour
 {
-    // ========================== UI 참조 ==========================
-    public StatsUIManager statsUIManager;
-    private PlayerStats playerStats;
-    private PlayerHealth playerHealth;
-    private CharacterStats characterStats;
+    public static PlayerController Instance;
 
-    // ========================== 설정 값 ==========================
     [Header("플레이어 기본 스탯 (원본 데이터)")]
     public int attackPower = 10;
     public int defensePower = 5;
     public float baseMoveSpeed = 5f;
 
+    [Header("UI 참조")]
+    public StatsUIManager statsUIManager;
+    private PlayerStats playerStats;
+    private PlayerHealth playerHealth;
+    private CharacterStats characterStats;
+
     [Header("운동 설정")]
-    public float moveSpeed; // 실제 이동 속도
+    public float moveSpeed;
     public float jumpForce = 300f;
     public float wallJumpForce = 300f;
     public float attackMoveSpeed = 1f;
@@ -53,7 +54,6 @@ public class PlayerController : MonoBehaviour
     public float maceKnockbackRadius = 2.0f;
     public float maceKnockbackForce = 15f;
 
-    // ========================== 상태 변수 ==========================
     private int jumpCount = 0;
     private bool isGrounded = false;
     private bool facingRight = true;
@@ -67,7 +67,6 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector] public bool hasSword, canMove = true, isAttacking, hasLance, hasMace;
 
-    // ========================== 컴포넌트 참조 ==========================
     private Rigidbody2D playerRigidbody;
     private Animator animator;
     private AudioSource playerAudio;
@@ -75,6 +74,28 @@ public class PlayerController : MonoBehaviour
     private LanceAttack lanceAttack;
 
     public WeaponStats currentWeaponStats;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        playerHealth = GetComponent<PlayerHealth>();
+        playerStats = GetComponent<PlayerStats>();
+        characterStats = GetComponent<CharacterStats>();
+        lanceAttack = GetComponent<LanceAttack>();
+        playerRigidbody = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        playerAudio = GetComponent<AudioSource>();
+    }
 
     private void OnEnable()
     {
@@ -93,17 +114,6 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = spawnPoint.transform.position;
         }
-    }
-
-    private void Awake()
-    {
-        playerHealth = GetComponent<PlayerHealth>();
-        playerStats = GetComponent<PlayerStats>();
-        characterStats = GetComponent<CharacterStats>();
-        lanceAttack = GetComponent<LanceAttack>();
-        playerRigidbody = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
-        playerAudio = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -258,7 +268,11 @@ public class PlayerController : MonoBehaviour
 
     private void HandleWallSlide()
     {
-        isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayer);
+        if (wallCheck != null)
+        {
+            isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayer);
+        }
+        
         if (!isGrounded && isTouchingWall && playerRigidbody.linearVelocity.y < 0)
         {
             isWallSliding = true;
@@ -277,6 +291,7 @@ public class PlayerController : MonoBehaviour
             if(animator != null) animator.SetBool("Wall", false);
             if (walkAudioSource.clip == wallSlideSound) walkAudioSource.Stop();
         }
+
         if (isWallSliding && Input.GetKeyDown(KeyCode.K))
         {
             float wallJumpDir = facingRight ? -1 : 1;
@@ -387,7 +402,14 @@ public class PlayerController : MonoBehaviour
         }
 
         float finalMoveSpeed = (weaponMoveSpeed > 0) ? weaponMoveSpeed : baseMoveSpeed;
-        moveSpeed = finalMoveSpeed + playerStats.bonusMoveSpeed;
+        if (playerStats != null)
+        {
+            moveSpeed = finalMoveSpeed + playerStats.bonusMoveSpeed;
+        }
+        else
+        {
+            moveSpeed = finalMoveSpeed;
+        }
         originalMoveSpeed = moveSpeed;
     }
 
