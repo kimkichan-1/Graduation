@@ -24,10 +24,24 @@ public class MonsterHealth : MonoBehaviour
     private AudioSource audioSource; // 사운드 재생을 위한 컴포넌트
     private bool isDead = false; // 사망 상태 플래그
     public bool IsDead => isDead;   // 외부에서 사망 상태 확인용 프로퍼티
+    private SpriteRenderer spriteRenderer; // 스프라이트 렌더러 (색상 변경용)
 
     public Slider healthBar;          // 체력바 UI
     public GameObject damageTextPrefab; // 데미지 텍스트 프리팹
     public Vector3 damageTextOffset = new Vector3(0, 1f, 0); // 데미지 텍스트 표시 오프셋
+
+    [Header("타격 이펙트")]
+    public GameObject hitEffectPrefab; // 타격 이펙트 프리팹
+    public float hitEffectDuration = 0.5f; // 타격 이펙트 지속 시간
+    [Tooltip("몬스터 스프라이트 범위 (X축 최소/최대, Y축 최소/최대)")]
+    public Vector2 randomRangeX = new Vector2(-0.5f, 0.5f); // X축 랜덤 범위
+    public Vector2 randomRangeY = new Vector2(-0.5f, 0.5f); // Y축 랜덤 범위
+
+    [Header("피격 반응 설정")]
+    [Range(0f, 1f)]
+    [Tooltip("Hurt 애니메이션이 재생될 확률 (0.0 = 0%, 1.0 = 100%)")]
+    public float hurtAnimationProbability = 0.3f; // Hurt 애니메이션 확률 (기본: 30%)
+    public float flashDuration = 0.1f; // 스프라이트 깜빡임 지속 시간
 
     [SerializeField] private AudioClip deathSound; // 사망 사운드 클립
     [SerializeField] private AudioClip hitSound;   // 피격 사운드 클립
@@ -38,6 +52,7 @@ public class MonsterHealth : MonoBehaviour
         currentHealth = maxHealth; // 초기 체력 설정
         animator = GetComponent<Animator>(); // 애니메이터 초기화
         audioSource = GetComponent<AudioSource>(); // AudioSource 초기화
+        spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer 초기화
 
         // AudioSource가 없으면 추가
         if (audioSource == null)
@@ -144,13 +159,32 @@ public class MonsterHealth : MonoBehaviour
         currentHealth -= finalDamage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        // 피격 사운드 재생
+        // 피격 사운드 재생 (사망 시에도 재생)
         if (hitSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(hitSound);
         }
 
-        // 데미지 텍스트 생성 (월드 공간)
+        // 타격 이펙트 생성 (사망 시에도 생성)
+        if (hitEffectPrefab != null)
+        {
+            // 랜덤 오프셋 계산
+            float randomX = Random.Range(randomRangeX.x, randomRangeX.y);
+            float randomY = Random.Range(randomRangeY.x, randomRangeY.y);
+            Vector3 randomOffset = new Vector3(randomX, randomY, 0);
+
+            Vector3 effectPosition = transform.position + randomOffset;
+            GameObject effect = Instantiate(hitEffectPrefab, effectPosition, Quaternion.identity);
+
+            // 몬스터의 방향에 따라 이펙트도 flip
+            Vector3 effectScale = effect.transform.localScale;
+            effectScale.x = transform.localScale.x > 0 ? Mathf.Abs(effectScale.x) : -Mathf.Abs(effectScale.x);
+            effect.transform.localScale = effectScale;
+
+            Destroy(effect, hitEffectDuration); // 지정된 시간 후 자동 삭제
+        }
+
+        // 데미지 텍스트 생성 (사망 시에도 생성)
         if (damageTextPrefab != null)
         {
             Vector3 spawnPosition = transform.position + damageTextOffset;
@@ -160,10 +194,6 @@ public class MonsterHealth : MonoBehaviour
                 damageText.SetDamage(finalDamage);
         }
 
-        // 피격 애니메이션 재생
-        if (animator != null)
-            animator.SetTrigger("isHurt");
-
         // 체력바 업데이트 및 표시
         if (healthBar != null)
         {
@@ -171,17 +201,44 @@ public class MonsterHealth : MonoBehaviour
             healthBar.gameObject.SetActive(true); // 공격받으면 체력바 표시
         }
 
-        // 체력이 0 이하일 경우 사망 처리
+        // 체력이 0 이하일 경우 즉시 사망 플래그 설정 및 사망 처리
         if (currentHealth <= 0)
+        {
+            isDead = true;
             Die();
+            return; // Hurt 애니메이션 실행 방지
+        }
+
+        // 확률 기반으로 Hurt 애니메이션 재생 여부 결정
+        float randomValue = Random.Range(0f, 1f);
+
+        if (randomValue < hurtAnimationProbability)
+        {
+            // 확률에 따라 Hurt 애니메이션 재생
+            if (animator != null)
+                animator.SetTrigger("isHurt");
+        }
+        else
+        {
+            // 확률에 해당하지 않으면 스프라이트만 하얗게 깜빡임
+            if (spriteRenderer != null)
+                StartCoroutine(FlashWhite());
+        }
+    }
+
+    // 스프라이트를 하얗게 깜빡이게 하는 코루틴
+    private IEnumerator FlashWhite()
+    {
+        Color originalColor = spriteRenderer.color;
+        spriteRenderer.color = Color.white;
+        yield return new WaitForSeconds(flashDuration);
+        spriteRenderer.color = originalColor;
     }
 
     // 사망 처리 메서드
     private void Die()
     {
-        if (isDead) return;
-        isDead = true;
-
+        // isDead는 이미 ApplyDamage에서 true로 설정됨
         StartCoroutine(DieRoutine());
     }
 
@@ -192,7 +249,7 @@ public class MonsterHealth : MonoBehaviour
         if (playerStats != null) playerStats.AddXp(xpValue);
 
         // 2. 사망 애니메이션, 사운드 등 즉시 처리
-        if (animator != null) animator.SetTrigger("isDead");
+        if (animator != null) animator.SetBool("isDead", true);
         if (deathSound != null) audioSource.PlayOneShot(deathSound);
         if (healthBar != null) healthBar.gameObject.SetActive(false);
 

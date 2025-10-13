@@ -11,8 +11,10 @@ public class MonsterController : MonoBehaviour
     [SerializeField] private float maxPauseDuration = 2f;
 
     [Header("Detection Settings")]
-    [SerializeField] private float detectionRadius = 5f;
-    [SerializeField] private float attackRadius = 1f;
+    [SerializeField] private Vector2 detectionSize = new Vector2(10f, 10f); // 감지 범위 크기 (가로, 세로)
+    [SerializeField] private Vector2 detectionOffset = Vector2.zero; // 감지 범위 오프셋
+    [SerializeField] private Vector2 attackSize = new Vector2(2f, 2f); // 공격 범위 크기 (가로, 세로)
+    [SerializeField] private Vector2 attackOffset = Vector2.zero; // 공격 범위 오프셋
     [SerializeField] private LayerMask playerLayer;
     [SerializeField] private LayerMask groundLayer;
 
@@ -49,7 +51,7 @@ public class MonsterController : MonoBehaviour
     private Coroutine attackCoroutine = null; // 공격 코루틴을 저장할 변수
 
     private readonly int speedHash = Animator.StringToHash("Speed");
-    private readonly int attackHash = Animator.StringToHash("Attack");
+    private readonly int isAttackingHash = Animator.StringToHash("isAttacking");
 
     void Start()
     {
@@ -71,7 +73,15 @@ public class MonsterController : MonoBehaviour
 
     void Update()
     {
-        if (monsterHealth != null && monsterHealth.IsDead || isStaggered) return;
+        // 죽었으면 모든 동작 중지
+        if (monsterHealth != null && monsterHealth.IsDead)
+        {
+            rb.linearVelocity = Vector2.zero; // 이동 멈춤
+            animator.SetFloat(speedHash, 0f); // 애니메이션 속도 0
+            return;
+        }
+
+        if (isStaggered) return;
 
         DetectPlayer();
 
@@ -83,14 +93,20 @@ public class MonsterController : MonoBehaviour
 
     private void DetectPlayer()
     {
-        Collider2D playerCollider = Physics2D.OverlapCircle(transform.position, detectionRadius, playerLayer);
+        // 사각형 범위로 플레이어 감지 (오프셋 적용)
+        Vector2 detectionCenter = (Vector2)transform.position + detectionOffset;
+        Collider2D playerCollider = Physics2D.OverlapBox(detectionCenter, detectionSize, 0f, playerLayer);
+
         if (playerCollider != null && playerCollider.CompareTag("Player"))
         {
             player = playerCollider.transform;
             isChasingPlayer = true;
 
-            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-            if (distanceToPlayer <= attackRadius && canAttack && !isAttacking)
+            // 사각형 범위로 공격 가능 여부 체크 (오프셋 적용)
+            Vector2 attackCenter = (Vector2)transform.position + attackOffset;
+            Collider2D attackCheck = Physics2D.OverlapBox(attackCenter, attackSize, 0f, playerLayer);
+
+            if (attackCheck != null && canAttack && !isAttacking)
             {
                 // 공격 코루틴을 변수에 저장
                 attackCoroutine = StartCoroutine(AttackPlayer());
@@ -137,11 +153,14 @@ public class MonsterController : MonoBehaviour
         isMoving = false;
         rb.linearVelocity = Vector2.zero;
 
-        if (animator != null) animator.SetTrigger(attackHash);
+        if (animator != null) animator.SetBool(isAttackingHash, true);
 
-        yield return new WaitForSeconds(1f); // 공격 애니메이션 시간
+        yield return new WaitForSeconds(0.8f); // 공격 애니메이션 시간 (애니메이션 끝나기 직전)
 
-        yield return new WaitForSeconds(0.3f); // 공격 후 경직
+        // 애니메이션이 끝나기 전에 Bool을 false로 전환하여 부드러운 전환 보장
+        if (animator != null) animator.SetBool(isAttackingHash, false);
+
+        yield return new WaitForSeconds(0.5f); // 공격 후 경직
 
         isAttacking = false;
         isMoving = true;
@@ -172,6 +191,12 @@ public class MonsterController : MonoBehaviour
     {
         while (true)
         {
+            // 죽었으면 움직임 코루틴 종료
+            if (monsterHealth != null && monsterHealth.IsDead)
+            {
+                yield break;
+            }
+
             if (isChasingPlayer || isAttacking || isStaggered)
             {
                 yield return null;
@@ -255,10 +280,15 @@ public class MonsterController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        // 빨간색 사각형 - 감지 범위 (오프셋 적용)
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        Vector3 detectionCenter = transform.position + (Vector3)detectionOffset;
+        Gizmos.DrawWireCube(detectionCenter, new Vector3(detectionSize.x, detectionSize.y, 0));
+
+        // 노란색 사각형 - 공격 범위 (오프셋 적용)
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, attackRadius);
+        Vector3 attackCenter = transform.position + (Vector3)attackOffset;
+        Gizmos.DrawWireCube(attackCenter, new Vector3(attackSize.x, attackSize.y, 0));
 
         if (wallCheck != null)
         {

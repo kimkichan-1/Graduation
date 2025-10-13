@@ -1,4 +1,4 @@
-// CharacterVisuals.cs (2D 버전)
+// CharacterVisuals.cs (수정된 버전)
 
 using System.Collections;
 using UnityEngine;
@@ -6,7 +6,7 @@ using UnityEngine;
 public class CharacterVisuals : MonoBehaviour
 {
     private Vector3 homePosition;
-    private SpriteRenderer spriteRenderer; // 3D 모델 대신 스프라이트 렌더러
+    private SpriteRenderer spriteRenderer;
 
     void Start()
     {
@@ -14,12 +14,10 @@ public class CharacterVisuals : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    // MoveToPosition과 ReturnToHomePosition은 Vector3를 그대로 사용해도
-    // 2D 환경에서 문제 없이 작동하므로 수정할 필요가 없습니다.
     public IEnumerator MoveToPosition(Vector3 targetPosition, float duration)
     {
-        // 이동 시 타겟을 바라보도록 방향 전환
-        FaceTarget(targetPosition);
+        // 이동 함수 안에서 자동으로 방향을 바꾸는 로직을 삭제합니다.
+        // FaceTarget(targetPosition); // <- 이 줄 삭제
 
         Vector3 startPosition = transform.position;
         float time = 0;
@@ -34,28 +32,25 @@ public class CharacterVisuals : MonoBehaviour
 
     public IEnumerator ReturnToHomePosition(float duration)
     {
-        // 복귀 시 원래 위치를 바라보도록 방향 전환
-        FaceTarget(homePosition);
+        // 여기서도 방향 전환 로직을 삭제합니다.
+        // FaceTarget(homePosition); // <- 이 줄 삭제
         yield return StartCoroutine(MoveToPosition(homePosition, duration));
-        // 복귀 후 원래 방향으로
-        transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
     }
 
-    // 타겟의 방향에 맞춰 스프라이트를 좌우로 뒤집는 함수
-    private void FaceTarget(Vector3 targetPosition)
+    // ★★★ 함수 이름과 로직 수정 ★★★
+    // 이제 이 함수는 명확히 '상대방'의 위치를 받아 그쪽을 바라봅니다.
+    public void FaceOpponent(Transform opponentTransform)
     {
         if (spriteRenderer == null) return;
 
-        float xDirection = targetPosition.x - transform.position.x;
+        float xDirection = opponentTransform.position.x - transform.position.x;
         
-        if (xDirection > 0) // 타겟이 오른쪽에 있으면
+        if (xDirection > 0) // 상대가 오른쪽에 있으면 오른쪽을 바라봄
         {
-            // 스프라이트가 기본적으로 오른쪽을 보고 있다고 가정
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
-        else if (xDirection < 0) // 타겟이 왼쪽에 있으면
+        else if (xDirection < 0) // 상대가 왼쪽에 있으면 왼쪽을 바라봄
         {
-            // x축 스케일을 -로 바꿔 좌우 반전
             transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
     }
