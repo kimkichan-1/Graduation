@@ -73,11 +73,7 @@ public class CharacterStats : MonoBehaviour
         {
             playerHealth.TakeDamage(damage);
             this.currentHp = playerHealth.GetCurrentHealth();
-            
-<<<<<<< HEAD
-            // 플레이어 사망 체크
-=======
->>>>>>> Song
+
             if(this.currentHp <= 0)
             {
                 if (battleController != null)
@@ -92,19 +88,11 @@ public class CharacterStats : MonoBehaviour
             Debug.Log($"{characterName}이(가) {damage}의 피해를 입었습니다! 남은 체력: {currentHp}");
             if (currentHp <= 0)
             {
-<<<<<<< HEAD
-                // 사망 시 BattleController에 알림
-=======
->>>>>>> Song
                 if (battleController != null)
                 {
                     battleController.OnCharacterDefeated(this);
                 }
-<<<<<<< HEAD
-                gameObject.SetActive(false); // 오브젝트는 마지막에 비활성화
-=======
                 gameObject.SetActive(false);
->>>>>>> Song
             }
         }
     }
