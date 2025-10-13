@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      MSHero_4_Walking0004_0: 2617810186356972407
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

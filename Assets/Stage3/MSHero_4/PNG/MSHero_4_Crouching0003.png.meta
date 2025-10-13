@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      MSHero_4_Crouching0003_0: -2199127173856207611
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -290,10 +290,7 @@ public class BattleController : MonoBehaviour
         else if (defeatedCharacter == player)
         {
             Debug.Log("플레이어가 패배했습니다...");
-<<<<<<< HEAD
-            // (추후 여기에 패배 로직 추가)
-=======
->>>>>>> Song
+
         }
     }
 
@@ -308,14 +305,13 @@ public class BattleController : MonoBehaviour
 
         yield return new WaitForSeconds(10f);
 
-<<<<<<< HEAD
-=======
+
         if (BossGameManager.Instance != null)
         {
             BossGameManager.Instance.ChangeState(GameState.Exploration);
         }
         
->>>>>>> Song
+
         SceneManager.LoadScene(nextStageName);
     }
 }

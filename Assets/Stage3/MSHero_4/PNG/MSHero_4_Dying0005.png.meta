@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      MSHero_4_Dying0005_0: 7873177311729806050
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

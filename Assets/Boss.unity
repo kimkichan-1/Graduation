@@ -554,7 +554,7 @@ Transform:
   - {fileID: 65719803}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< HEAD
+
 --- !u!1001 &225946630
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -804,8 +804,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36b8b509b01c2ee44b88d0ba2db4e970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-=======
->>>>>>> Song
+
+
 --- !u!1 &265072918
 GameObject:
   m_ObjectHideFlags: 0
@@ -1605,11 +1605,9 @@ MonoBehaviour:
   playerClashPosition: {fileID: 36746216}
   bossClashPosition: {fileID: 917482011}
   mainCameraController: {fileID: 0}
-<<<<<<< HEAD
-  victoryText: {fileID: 1788813647}
-=======
+
   victoryText: {fileID: 613456654}
->>>>>>> Song
+
   nextStageName: Stage2
 --- !u!1 &580837914
 GameObject:
@@ -2528,11 +2526,9 @@ RectTransform:
   - {fileID: 1976486060}
   - {fileID: 1367683702}
   - {fileID: 1144572188}
-<<<<<<< HEAD
-  - {fileID: 1788813646}
-=======
+
   - {fileID: 613456653}
->>>>>>> Song
+
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

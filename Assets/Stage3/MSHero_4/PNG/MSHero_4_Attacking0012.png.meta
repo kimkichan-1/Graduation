@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      MSHero_4_Attacking0012_0: 1437181729342047640
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
