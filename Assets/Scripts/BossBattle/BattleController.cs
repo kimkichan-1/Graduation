@@ -290,7 +290,6 @@ public class BattleController : MonoBehaviour
         else if (defeatedCharacter == player)
         {
             Debug.Log("플레이어가 패배했습니다...");
-
         }
     }
 
@@ -305,12 +304,10 @@ public class BattleController : MonoBehaviour
 
         yield return new WaitForSeconds(10f);
 
-
         if (BossGameManager.Instance != null)
         {
             BossGameManager.Instance.ChangeState(GameState.Exploration);
         }
-        
 
         SceneManager.LoadScene(nextStageName);
     }

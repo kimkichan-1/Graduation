@@ -73,7 +73,6 @@ public class CharacterStats : MonoBehaviour
         {
             playerHealth.TakeDamage(damage);
             this.currentHp = playerHealth.GetCurrentHealth();
-            
 
             if(this.currentHp <= 0)
             {
@@ -89,14 +88,11 @@ public class CharacterStats : MonoBehaviour
             Debug.Log($"{characterName}이(가) {damage}의 피해를 입었습니다! 남은 체력: {currentHp}");
             if (currentHp <= 0)
             {
-
                 if (battleController != null)
                 {
                     battleController.OnCharacterDefeated(this);
                 }
-
                 gameObject.SetActive(false);
-
             }
         }
     }
