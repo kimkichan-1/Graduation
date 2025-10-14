@@ -609,6 +609,19 @@ MonoBehaviour:
   goldDropRange: 0.2
   minCoinCount: 3
   maxCoinCount: 6
+  itemDropList:
+  - itemPrefab: {fileID: 4588468919509396396, guid: 0eab7035af9340641946c371ca2345c1, type: 3}
+    dropChance: 10
+    minDropCount: 1
+    maxDropCount: 1
+  - itemPrefab: {fileID: 2657423303460945496, guid: cca5cb53a80350445873d1f293c8395f, type: 3}
+    dropChance: 2
+    minDropCount: 1
+    maxDropCount: 1
+  - itemPrefab: {fileID: 4671173666858946743, guid: 98a6b0c5304c94e4c8b40871a1761aa2, type: 3}
+    dropChance: 0.5
+    minDropCount: 1
+    maxDropCount: 1
   dropForce: 5
 --- !u!114 &5022648941091582991
 MonoBehaviour:

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3168732884622555365}
   - component: {fileID: 914167485598402783}
   - component: {fileID: 8331250442070836004}
+  - component: {fileID: 6362531320257974113}
   m_Layer: 0
   m_Name: SuperiorPotionPickup
   m_TagString: Untagged
@@ -148,3 +149,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   item: {fileID: 11400000, guid: 9955157dfddbb3245b49614261621697, type: 2}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  groundCheckDistance: 0.3
+  gravityForce: 9.8
+  bounceForce: 3
+  drag: 2
+--- !u!50 &6362531320257974113
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4671173666858946743}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
