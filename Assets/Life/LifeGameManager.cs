@@ -1,7 +1,7 @@
-// ���ϸ�: GameManager.cs (���� �Ϸ�)
+// 파일명: LifeGameManager.cs
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Collections; // �ڡڡ� ������ �κ�: �ڷ�ƾ�� ����ϱ� ���� �ʼ�! �ڡڡ�
+using System.Collections;
 
 public class LifeGameManager : MonoBehaviour
 {
@@ -33,26 +33,18 @@ public class LifeGameManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // �ڡڡ� ������ �κ�: OnSceneLoaded �Լ��� ���� �ڷ�ƾ�� '����'��Ű�� ���Ҹ� �մϴ�. �ڡڡ�
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // ���� ���ƿ� ���� ����� �� �̸��� ���ٸ�
         if (!string.IsNullOrEmpty(sceneNameBeforePortal) && scene.name == sceneNameBeforePortal)
         {
-            // ���� ���� �۾��� ���� �ʰ�, �ڷ�ƾ�� ���۽�ŵ�ϴ�.
             StartCoroutine(RestoreSceneState());
         }
     }
 
-    // �ڡڡ� ���� �߰��� �ڷ�ƾ �Լ� �ڡڡ�
-    // ���� ���� �۾��� �� �Լ����� �� ������ �ڿ� �����ϰ� �̷�����ϴ�.
     IEnumerator RestoreSceneState()
     {
-        // �� �� �����Ӹ� ��ٸ��ϴ�.
-        // �� �ð� ���� ParallaxBackground ���� �ٸ� ��ũ��Ʈ���� �ʱ�ȭ�� �ð��� �ݴϴ�.
         yield return null;
 
-        // --- ���� OnSceneLoaded�� �ִ� ���� �ڵ尡 �� ������ ���Խ��ϴ� ---
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
@@ -61,10 +53,9 @@ public class LifeGameManager : MonoBehaviour
 
         if (Camera.main != null)
         {
-            Camera.main.cullingMask = -1; // ī�޶� ���� ����
+            Camera.main.cullingMask = -1;
         }
 
-        // ����� ���� ������ �ʱ�ȭ�մϴ�.
         sceneNameBeforePortal = null;
     }
 
@@ -75,6 +66,54 @@ public class LifeGameManager : MonoBehaviour
         else if (tapCount < 50) regenBuffValue = 0.5f;
         else if (tapCount < 100) regenBuffValue = 1.0f;
         else regenBuffValue = 2.0f;
-        Debug.Log($"�̴ϰ��� ����! ���� ��Ÿ: {finalTapCount}, ��� ����: {regenBuffValue}hp/sec");
+        Debug.Log($"미니게임 종료! 최종 점수: {finalTapCount}");
+    }
+
+    public void ApplyImmediateHeal()
+    {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null)
+        {
+            Debug.LogError("체력을 회복시킬 플레이어를 찾을 수 없습니다!");
+            return;
+        }
+
+        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+        if (playerHealth == null)
+        {
+            Debug.LogError("플레이어에게 PlayerHealth 스크립트가 없습니다!");
+            return;
+        }
+
+        // --- ▼▼▼▼▼ 수정된 부분 (회복량 계산 로직) ▼▼▼▼▼ ---
+        int healAmount = 0;
+        if (finalTapCount < 30)
+        {
+            healAmount = 10;
+        }
+        else if (finalTapCount < 50) // 30 이상, 50 미만
+        {
+            healAmount = 20;
+        }
+        else if (finalTapCount < 100) // 50 이상, 100 미만
+        {
+            healAmount = 30;
+        }
+        else // 100 이상
+        {
+            healAmount = 50;
+        }
+        // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
+
+        // 회복량이 0보다 클 때만 회복 실행 및 메시지 표시
+        if (healAmount > 0)
+        {
+            playerHealth.Heal(healAmount);
+            Debug.Log($"미니게임 보상으로 체력을 {healAmount}만큼 즉시 회복했습니다!");
+        }
+        else
+        {
+            Debug.Log("미니게임 점수가 낮아 체력 회복 보상이 없습니다.");
+        }
     }
 }

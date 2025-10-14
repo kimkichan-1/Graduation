@@ -1306,7 +1306,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flameTrapPrefab: {fileID: 3036642140771930959}
-  maxTrapCount: 7
+  maxTrapCount: 4
   minSpawnInterval: 1
   maxSpawnInterval: 3
   spawnMin: {fileID: 907371527}

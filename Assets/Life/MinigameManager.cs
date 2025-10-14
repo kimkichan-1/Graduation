@@ -1,4 +1,4 @@
-// ���ϸ�: MinigameManager.cs (���� ���׷��̵� ����)
+// 파일명: MinigameManager.cs
 using UnityEngine;
 using System.Collections;
 using TMPro;
@@ -6,59 +6,60 @@ using UnityEngine.SceneManagement;
 
 public class MinigameManager : MonoBehaviour
 {
-    [Header("��ȭ UI")]
+    [Header("대화 UI")]
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TextMeshProUGUI dialogueText;
 
-    [Header("�̴ϰ��� UI")]
+    [Header("미니게임 UI")]
     [SerializeField] private GameObject minigameUI;
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI tapCountText;
 
-    [Header("���� UI")]
+    [Header("보상 UI")]
     [SerializeField] private GameObject rewardPanel;
     [SerializeField] private TextMeshProUGUI rewardText;
 
-    [Header("��ȭ ����")]
+    [Header("대화 내용")]
     [SerializeField, TextArea(3, 10)] private string[] storyDialogue;
     [SerializeField, TextArea(3, 10)] private string[] instructionDialogue;
 
-    [Header("�̴ϰ��� ����")]
+    [Header("미니게임 설정")]
     [SerializeField] private float gameDuration = 10f;
 
     private int finalTapCount = 0;
 
     void Start()
     {
-        // ���� �� ��� UI�� �� ���·� ���
         dialoguePanel.SetActive(false);
         minigameUI.SetActive(false);
         rewardPanel.SetActive(false);
     }
 
-    // DialogueTrigger�� �� �Լ��� ȣ���Ͽ� ��ü �������� ����
     public void StartEventSequence()
     {
         StartCoroutine(FullSequenceCoroutine());
     }
 
-    // ��ü �帧�� �����ϴ� ���� �ڷ�ƾ
     private IEnumerator FullSequenceCoroutine()
     {
         yield return StartCoroutine(ShowDialogue(storyDialogue));
         yield return StartCoroutine(ShowDialogue(instructionDialogue));
         yield return StartCoroutine(MinigameCoroutine());
 
-        // LifeGameManager�� ProcessMinigameResult�� ���� ȣ��
         if (LifeGameManager.Instance != null)
         {
+            // 1. 미니게임 결과를 GameManager로 전송
             LifeGameManager.Instance.ProcessMinigameResult(finalTapCount);
+
+            // --- ▼▼▼▼▼ 수정된 부분 (이 줄을 추가하세요) ▼▼▼▼▼ ---
+            // 2. GameManager에게 즉시 체력 회복을 명령
+            LifeGameManager.Instance.ApplyImmediateHeal();
+            // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
         }
 
         ProcessAndShowReward();
     }
 
-    // ��ȭâ�� ���� �����ϴ� �ڷ�ƾ
     private IEnumerator ShowDialogue(string[] dialogueLines)
     {
         dialoguePanel.SetActive(true);
@@ -71,7 +72,6 @@ public class MinigameManager : MonoBehaviour
         dialoguePanel.SetActive(false);
     }
 
-    // �̴ϰ��� ���� �ڷ�ƾ
     private IEnumerator MinigameCoroutine()
     {
         minigameUI.SetActive(true);
@@ -94,30 +94,26 @@ public class MinigameManager : MonoBehaviour
         minigameUI.SetActive(false);
     }
 
-    // ���� ���� ó�� �� ǥ��
     private void ProcessAndShowReward()
     {
-        string rewardMessage = "No rewards have been obtained.";
+        string rewardMessage = "아무런 보상도 얻지 못했다.";
         if (LifeGameManager.Instance != null)
         {
             float buffValue = LifeGameManager.Instance.regenBuffValue;
-            if (buffValue >= 1.0f) rewardMessage = "I can feel the overflowing power of life!\n[Heal] Get buffs (Strong) (Boss play)";
-            else if (buffValue >= 0.5f) rewardMessage = "I won the tears of an old tree!\n[Heal] Get buffs(Weak)(Boss play)";
-            else if (buffValue > 0f) rewardMessage = "I barely felt the energy of life.";
+            if (buffValue >= 1.0f) rewardMessage = "생명의 넘치는 힘이 느껴진다!\n[치유] 버프 획득(강)(보스전에서 발동)";
+            else if (buffValue >= 0.5f) rewardMessage = "고목의 눈물을 얻었다!\n[치유] 버프 획득(약)(보스전에서 발동)";
+            else if (buffValue > 0f) rewardMessage = "생명의 기운을 희미하게나마 느꼈다.";
         }
 
         rewardText.text = rewardMessage;
         rewardPanel.SetActive(true);
     }
 
-    // ���� â�� "���ư���" ��ư�� ������ �Լ�
     public void OnClickReturnButton()
     {
         if (LifeGameManager.Instance != null && !string.IsNullOrEmpty(LifeGameManager.Instance.sceneNameBeforePortal))
         {
-            // PlayerSpawner�� ������� �ʰ�, LifeGameManager�� ������ ���� �̵�
             SceneManager.LoadScene(LifeGameManager.Instance.sceneNameBeforePortal);
-            // ���� �ε�� �� �÷��̾� ��ġ�� �����ϴ� ������ �ʿ� (��: PlayerStartPoint ��ũ��Ʈ)
         }
     }
 }

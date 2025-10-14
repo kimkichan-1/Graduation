@@ -200,6 +200,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMovement()
     {
+        
         if (!canMove)
         {
             playerRigidbody.linearVelocity = new Vector2(0, playerRigidbody.linearVelocity.y);
@@ -222,6 +223,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
+        
         if (!canMove) return;
         if (Input.GetKeyDown(KeyCode.K) && jumpCount < 1)
         {
