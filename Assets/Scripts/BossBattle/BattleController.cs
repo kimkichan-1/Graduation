@@ -29,7 +29,10 @@ public class BattleController : MonoBehaviour
 
     [Header("카메라 컨트롤러")]
     public CameraController mainCameraController;
-    
+
+    [Header("주사위 애니메이션")]
+    public DiceAnimationManager diceAnimationManager;
+
     [Header("승리 연출")]
     public TextMeshProUGUI victoryText;
     public string nextStageName = "Stage2";
@@ -195,14 +198,24 @@ public class BattleController : MonoBehaviour
         for (int i = 0; i < clashCount; i++)
         {
             if (i >= bossActionQueue.Count) break;
-            
+
             Debug.Log($"--------- [ {i + 1}번째 합 ] ---------");
             CombatPage playerPage = playerActionQueueUI[i].assignedPage;
             CombatPage bossPage = bossActionQueue[i];
 
-            ClashManager.ResolveClash(player, playerPage, boss, bossPage);
-            
-            yield return new WaitForSeconds(1.5f);
+            // 주사위 애니메이션이 있으면 애니메이션과 함께 실행
+            if (diceAnimationManager != null)
+            {
+                diceAnimationManager.SetupDiceVisuals(playerPage, bossPage);
+                yield return StartCoroutine(diceAnimationManager.AnimateClashSequence(
+                    player, playerPage, boss, bossPage));
+            }
+            else
+            {
+                // 애니메이션 없이 기존 로직만 실행
+                ClashManager.ResolveClash(player, playerPage, boss, bossPage);
+                yield return new WaitForSeconds(1.5f);
+            }
         }
 
         playerVisuals.FaceOpponent(boss.transform);

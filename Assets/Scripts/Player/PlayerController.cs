@@ -114,6 +114,19 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = spawnPoint.transform.position;
         }
+
+        // Audio Listener 중복 체크 및 제거
+        AudioListener[] listeners = FindObjectsOfType<AudioListener>();
+        if (listeners.Length > 1)
+        {
+            // Player의 Audio Listener 제거 (Main Camera가 듣도록)
+            AudioListener playerListener = GetComponent<AudioListener>();
+            if (playerListener != null)
+            {
+                Destroy(playerListener);
+                Debug.Log("Player의 Audio Listener를 제거했습니다. (Main Camera가 사운드를 듣습니다)");
+            }
+        }
     }
 
     private void Start()
