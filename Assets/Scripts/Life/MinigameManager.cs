@@ -107,9 +107,10 @@ public class MinigameManager : MonoBehaviour
         if (LifeGameManager.Instance != null)
         {
             float buffValue = LifeGameManager.Instance.regenBuffValue;
-            if (buffValue >= 1.0f) rewardMessage = "    I can feel the full power of life!\n    [Heal] (Strong)";
-            else if (buffValue >= 0.5f) rewardMessage = "    I got the tears of an old tree!\n    [Heal] (Weak)";
-            else if (buffValue > 0f) rewardMessage = "    I felt a faint sense of life.\r\n\r\n";
+            if (buffValue == 2.0f) rewardMessage = "    I can feel the full power of life!\n    [Heal] (Strong)";
+            else if (buffValue == 1f) rewardMessage = "    I got the tears of an old tree!\n    [Heal] (Weak)";
+            else if (buffValue == 0.5f) rewardMessage = "    I felt a faint sense of life.\r\n\r\n";
+            else if (buffValue == 0f) rewardMessage = "    I couldn't feel any life energy.";
         }
 
         rewardText.text = rewardMessage;
