@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
+using TMPro; // ★★★ TextMeshPro를 사용하기 위해 추가 ★★★
 
 public class CharacterStats : MonoBehaviour
 {
-    // BattleController 참조 변수
     public BattleController battleController;
-
     private PlayerController playerController;
     private PlayerHealth playerHealth;
     private PlayerStats playerStats;
@@ -19,6 +19,11 @@ public class CharacterStats : MonoBehaviour
     public int defensePower;
     public float moveSpeed;
 
+    [Header("체력바 UI")]
+    public GameObject healthBarUIParent;
+    public Slider healthSlider;
+    public TextMeshProUGUI healthText; // ★★★ 1. 텍스트 참조 변수 추가 ★★★
+
     [Header("빛(Light) 시스템")]
     public int maxLight = 3;
     public int currentLight;
@@ -30,7 +35,6 @@ public class CharacterStats : MonoBehaviour
 
     void Awake()
     {
-        // 씬에 있는 BattleController를 찾아서 연결 (보스에게만 필요)
         if (battleController == null)
         {
             battleController = FindObjectOfType<BattleController>();
@@ -54,6 +58,7 @@ public class CharacterStats : MonoBehaviour
         if (playerController == null || playerHealth == null || playerStats == null)
         {
             this.currentHp = this.maxHp;
+            UpdateHealthUI();
             Debug.Log($"{characterName}의 스탯을 인스펙터 기본값으로 초기화합니다.");
             return;
         }
@@ -65,15 +70,17 @@ public class CharacterStats : MonoBehaviour
         this.attackPower = playerController.attackPower + playerStats.bonusAttackPower;
         this.defensePower = playerController.defensePower + playerHealth.defense;
         this.moveSpeed = playerController.baseMoveSpeed + playerStats.bonusMoveSpeed;
+        UpdateHealthUI();
     }
     
     public void TakeDamage(int damage)
     {
-        if (playerHealth != null) // 플레이어일 경우
+        if (playerHealth != null)
         {
             playerHealth.TakeDamage(damage);
             this.currentHp = playerHealth.GetCurrentHealth();
-
+            UpdateHealthUI();
+            
             if(this.currentHp <= 0)
             {
                 if (battleController != null)
@@ -82,9 +89,13 @@ public class CharacterStats : MonoBehaviour
                 }
             }
         }
-        else // 보스일 경우
+        else
         {
             currentHp -= Mathf.Max(1, damage - defensePower);
+            if (currentHp < 0) currentHp = 0;
+            
+            UpdateHealthUI();
+
             Debug.Log($"{characterName}이(가) {damage}의 피해를 입었습니다! 남은 체력: {currentHp}");
             if (currentHp <= 0)
             {
@@ -92,8 +103,22 @@ public class CharacterStats : MonoBehaviour
                 {
                     battleController.OnCharacterDefeated(this);
                 }
-                gameObject.SetActive(false);
             }
+        }
+    }
+
+    public void UpdateHealthUI()
+    {
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHp;
+            healthSlider.value = currentHp;
+        }
+
+        // ★★★ 2. 텍스트 업데이트 로직 추가 ★★★
+        if (healthText != null)
+        {
+            healthText.text = $"{currentHp} / {maxHp}";
         }
     }
 

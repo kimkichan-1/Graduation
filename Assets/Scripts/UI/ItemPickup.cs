@@ -23,6 +23,8 @@ public class ItemPickup : MonoBehaviour
         if (rb != null)
         {
             velocity = rb.linearVelocity;
+            // Continuous Collision Detection 설정으로 빠른 통과 방지
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         }
     }
 
@@ -44,6 +46,9 @@ public class ItemPickup : MonoBehaviour
                 isGrounded = true;
                 velocity = Vector2.zero;
                 rb.linearVelocity = Vector2.zero;
+
+                // Kinematic으로 변경하여 더 이상 물리 영향을 받지 않도록
+                rb.bodyType = RigidbodyType2D.Kinematic;
 
                 // 바닥 위치로 정렬
                 transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);

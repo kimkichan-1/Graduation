@@ -8,6 +8,7 @@ using System.Collections;
 [RequireComponent(typeof(PlayerStats))]
 [RequireComponent(typeof(PlayerHealth))]
 [RequireComponent(typeof(CharacterStats))]
+[RequireComponent(typeof(CharacterVisuals))]
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController Instance;
@@ -22,6 +23,7 @@ public class PlayerController : MonoBehaviour
     private PlayerStats playerStats;
     private PlayerHealth playerHealth;
     private CharacterStats characterStats;
+    private CharacterVisuals characterVisuals;
 
     [Header("운동 설정")]
     public float moveSpeed;
@@ -91,6 +93,7 @@ public class PlayerController : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         playerStats = GetComponent<PlayerStats>();
         characterStats = GetComponent<CharacterStats>();
+        characterVisuals = GetComponent<CharacterVisuals>();
         lanceAttack = GetComponent<LanceAttack>();
         playerRigidbody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -109,23 +112,20 @@ public class PlayerController : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        PlayerSpawnPoint spawnPoint = FindFirstObjectByType<PlayerSpawnPoint>();
+        PlayerSpawnPoint spawnPoint = FindObjectOfType<PlayerSpawnPoint>();
         if (spawnPoint != null)
         {
             transform.position = spawnPoint.transform.position;
-        }
-
-        // Audio Listener 중복 체크 및 제거
-        AudioListener[] listeners = FindObjectsOfType<AudioListener>();
-        if (listeners.Length > 1)
-        {
-            // Player의 Audio Listener 제거 (Main Camera가 듣도록)
-            AudioListener playerListener = GetComponent<AudioListener>();
-            if (playerListener != null)
+            
+            if (characterVisuals != null)
             {
-                Destroy(playerListener);
-                Debug.Log("Player의 Audio Listener를 제거했습니다. (Main Camera가 사운드를 듣습니다)");
+                characterVisuals.homeTransform = spawnPoint.transform;
+                Debug.Log($"새로운 씬 '{scene.name}'의 스폰 포인트를 homeTransform으로 설정했습니다.");
             }
+        }
+        else
+        {
+            Debug.LogWarning($"씬 '{scene.name}'에서 PlayerSpawnPoint를 찾을 수 없습니다!");
         }
     }
 
@@ -200,7 +200,6 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMovement()
     {
-        
         if (!canMove)
         {
             playerRigidbody.linearVelocity = new Vector2(0, playerRigidbody.linearVelocity.y);
@@ -223,7 +222,6 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
-        
         if (!canMove) return;
         if (Input.GetKeyDown(KeyCode.K) && jumpCount < 1)
         {
