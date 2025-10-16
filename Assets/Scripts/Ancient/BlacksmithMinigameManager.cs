@@ -134,17 +134,17 @@ public class BlacksmithMinigameManager : MonoBehaviour
         // 점수(모은 불꽃 갯수)에 따라 보상 수치 계산
         if (score >= 20) // 예시: 불꽃 20개 이상
         {
-            rewardMessage = $"최고의 성과!\n\n골드 +100\n경험치 +50\n공격력 +5";
-            goldReward = 100;
-            xpReward = 50;
-            attackBonusReward = 5;
+            rewardMessage = $"최고의 성과!\n\n골드 +500\n경험치 +300\n공격력 +30";
+            goldReward = 500;
+            xpReward = 300;
+            attackBonusReward = 30;
         }
         else if (score >= 10) // 예시: 불꽃 10개 이상
         {
-            rewardMessage = $"훌륭한 성과!\n\n골드 +50\n경험치 +20\n공격력 +2";
-            goldReward = 50;
-            xpReward = 20;
-            attackBonusReward = 2;
+            rewardMessage = $"훌륭한 성과!\n\n골드 +300\n경험치 +200\n공격력 +15";
+            goldReward = 300;
+            xpReward = 200;
+            attackBonusReward = 15;
         }
         else // 그 외
         {

@@ -66,7 +66,7 @@ public class MinigameManager : MonoBehaviour
         foreach (var line in dialogueLines)
         {
             dialogueText.text = line;
-            yield return new WaitUntil(() => Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return));
+            yield return new WaitUntil(() => Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.W));
             yield return null;
         }
         dialoguePanel.SetActive(false);

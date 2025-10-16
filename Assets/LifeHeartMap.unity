@@ -1625,12 +1625,27 @@ MonoBehaviour:
   rewardPanel: {fileID: 155049400}
   rewardText: {fileID: 1872904537}
   storyDialogue:
-  - It is a place full of life that is different from before.
-  - What's that shiny tree in the middle?
-  - There is something in the tree.
+  - 'It is a place full of life that is different from before.
+
+
+    To the next
+    conversation : W
+
+'
+  - 'What''s that shiny tree in the middle?
+
+
+    To the next conversation : W'
+  - 'There is something in the tree.
+
+
+    To the next conversation : W'
   instructionDialogue:
-  - Press the space bar as much as possible to increase the hit count. Reward differential
+  - 'Press the space bar as much as possible to increase the hit count. Reward differential
     payment by the number of times it is increased
+
+
+    Start Game : W'
   gameDuration: 20
 --- !u!4 &1145142966
 Transform:

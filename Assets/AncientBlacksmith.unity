@@ -922,8 +922,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sulfurSmokePrefab: {fileID: 8664948674578845180, guid: 6c414c7c6c7f9d646a0c7a7892b3849b, type: 3}
   maxSmokeCount: 2
-  minSpawnInterval: 1
-  maxSpawnInterval: 3
+  minSpawnInterval: 2
+  maxSpawnInterval: 4
   spawnMin: {fileID: 907371527}
   spawnMax: {fileID: 392246855}
 --- !u!4 &930750408
