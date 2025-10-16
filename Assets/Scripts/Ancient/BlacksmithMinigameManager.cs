@@ -134,23 +134,23 @@ public class BlacksmithMinigameManager : MonoBehaviour
         // 점수(모은 불꽃 갯수)에 따라 보상 수치 계산
         if (score >= 20) // 예시: 불꽃 20개 이상
         {
-            rewardMessage = $"최고의 성과!\n\n골드 +500\n경험치 +300\n공격력 +30";
-            goldReward = 500;
-            xpReward = 300;
+            rewardMessage = $"The best performance!\n\nGold + 700\nExperience value +500\nAttacks +30";
+            goldReward = 700;
+            xpReward = 500;
             attackBonusReward = 30;
         }
         else if (score >= 10) // 예시: 불꽃 10개 이상
         {
-            rewardMessage = $"훌륭한 성과!\n\n골드 +300\n경험치 +200\n공격력 +15";
-            goldReward = 300;
-            xpReward = 200;
+            rewardMessage = $"Great achievement!\n\nGold + 500\nExperience value +300\nAttacking +15";
+            goldReward = 500;
+            xpReward = 300;
             attackBonusReward = 15;
         }
         else // 그 외
         {
-            rewardMessage = $"기본 보상\n\n골드 +10\n경험치 +10";
-            goldReward = 10;
-            xpReward = 10;
+            rewardMessage = $"basic compensation\n\nGold +200\nExperience value +50";
+            goldReward = 200;
+            xpReward = 50;
         }
 
         // 1. UI에 보상 내용을 표시합니다.
@@ -167,7 +167,7 @@ public class BlacksmithMinigameManager : MonoBehaviour
                 Debug.Log("플레이어에게 보상을 직접 지급합니다...");
                 if (goldReward > 0) playerStats.AddMoney(goldReward);
                 if (xpReward > 0) playerStats.AddXp(xpReward);
-                if (attackBonusReward > 0) playerStats.UpgradeAttackPower(); // UpgradeAttackPower는 5씩 오르므로, 여러번 호출하거나 값을 받도록 수정 필요
+                if (attackBonusReward > 0) playerStats.AddAttackPower(attackBonusReward); ; // UpgradeAttackPower는 5씩 오르므로, 여러번 호출하거나 값을 받도록 수정 필요
                 // 참고: PlayerStats의 UpgradeAttackPower()는 5씩 오르도록 고정되어 있습니다.
                 // 만약 2의 보너스를 주고 싶다면, PlayerStats의 UpgradeAttackPower() 함수를
                 // public void UpgradeAttackPower(int amount) { bonusAttackPower += amount; ... } 와 같이 수정해야 합니다.

@@ -139,6 +139,19 @@ public class PlayerStats : MonoBehaviour
         }
         Time.timeScale = 0f;
     }
+    // 미니게임 등 외부에서 보상으로 공격력을 지급할 때 사용하는 함수
+    public void AddAttackPower(int amount)
+    {
+        bonusAttackPower += amount;
+        Debug.Log($"보너스 공격력이 {amount}만큼 증가했습니다! 현재 보너스: {bonusAttackPower}");
+
+        // PlayerController가 있다면 스탯을 즉시 재계산하도록 요청
+        if (playerController != null)
+        {
+            playerController.RecalculateStats();
+            playerController.UpdateAllStatsUI();
+        }
+    }
 
     // --- 스탯 강화 메서드 (UI 버튼에서 호출) ---
     public void UpgradeAttackPower()

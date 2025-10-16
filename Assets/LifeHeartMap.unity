@@ -388,7 +388,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   finalTapCount: 0
   regenBuffValue: 0
-  playerPositionBeforePortal: {x: 27, y: -21.2, z: 0}
+  playerPositionBeforePortal: {x: 76.4, y: -13.69, z: 0}
   sceneNameBeforePortal: Stage1
 --- !u!4 &68734891
 Transform:
