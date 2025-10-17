@@ -5,10 +5,11 @@ using TMPro;
 
 public class DraggableCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public CardData cardData;
+    public CombatPage cardData;
     public Image artworkImage;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI descriptionText;
+    public TextMeshProUGUI costText; // ★★★ 코스트 텍스트 참조 추가 ★★★
 
     [HideInInspector]
     public Transform parentToReturnTo = null;
@@ -24,22 +25,37 @@ public class DraggableCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         }
     }
 
-    public void SetCardData(CardData data)
+    public void SetCardData(CombatPage data)
     {
         cardData = data;
         if (data == null) return;
-        nameText.text = cardData.cardName;
-        descriptionText.text = cardData.description;
-        if (artworkImage != null)
+        
+        // ★★★ UI 텍스트 설정 로직 수정 ★★★
+        if (nameText != null)
         {
-            artworkImage.sprite = cardData.artwork;
+            nameText.text = cardData.pageName;
+        }
+
+        if (costText != null)
+        {
+            costText.text = cardData.lightCost.ToString();
+        }
+
+        if (descriptionText != null)
+        {
+            string diceInfo = "";
+            foreach (var dice in cardData.diceList)
+            {
+                diceInfo += $"[{dice.type.ToString()} {dice.minValue}-{dice.maxValue}] ";
+            }
+            descriptionText.text = diceInfo;
         }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
         parentToReturnTo = this.transform.parent;
-        this.transform.SetParent(this.transform.root); // 최상위 캔버스로 이동하여 다른 UI 위에 보이게 합니다.
+        this.transform.SetParent(this.transform.root);
         canvasGroup.blocksRaycasts = false;
     }
 
@@ -48,14 +64,12 @@ public class DraggableCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         this.transform.position = eventData.position;
     }
 
+
+
     public void OnEndDrag(PointerEventData eventData)
     {
-        // 유효한 슬롯에 드롭되지 않았다면, 원래 부모(슬롯)로 돌아갑니다.
-        if (this.transform.parent == this.transform.root)
-        {
-            this.transform.SetParent(parentToReturnTo);
-            this.transform.localPosition = Vector3.zero;
-        }
+        this.transform.SetParent(parentToReturnTo);
+        this.transform.localPosition = Vector3.zero;
         canvasGroup.blocksRaycasts = true;
     }
 }

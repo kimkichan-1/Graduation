@@ -1308,6 +1308,7 @@ MonoBehaviour:
   playerClashPosition: {fileID: 1369199484}
   bossClashPosition: {fileID: 587855268}
   mainCameraController: {fileID: 0}
+  diceAnimationManager: {fileID: 0}
   victoryText: {fileID: 372536496}
   nextStageName: Stage3
 --- !u!4 &205355726
@@ -5340,8 +5341,8 @@ Transform:
   m_GameObject: {fileID: 842154430}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 22, y: 0.4188, z: -1}
-  m_LocalScale: {x: 0.556, y: 0.5916, z: 2}
+  m_LocalPosition: {x: 21.3436, y: 1.1627, z: -1}
+  m_LocalScale: {x: 0.69933677, y: 0.76298654, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -5367,6 +5368,7 @@ MonoBehaviour:
   moveSpeed: 5
   healthBarUIParent: {fileID: 1704684902}
   healthSlider: {fileID: 1346058996}
+  healthText: {fileID: 0}
   maxLight: 7
   currentLight: 7
   deck:

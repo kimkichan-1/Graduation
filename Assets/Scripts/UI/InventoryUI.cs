@@ -3,26 +3,22 @@ using UnityEngine;
 public class InventoryUI : MonoBehaviour
 {
     public GameObject inventoryPanel;
-    public Transform slotsParent; // The parent object of all the slots (e.g., SlotContainer)
+    public Transform slotsParent;
 
     private bool isInventoryOpen = false;
     private InventorySlot[] slots;
 
     void Start()
     {
-        // Subscribe to the inventory changed callback
         Inventory.instance.onInventoryChangedCallback += UpdateUI;
-
-        // Get all slot components
         slots = slotsParent.GetComponentsInChildren<InventorySlot>();
-
-        // Initially, the inventory is closed.
         if (inventoryPanel != null)
         {
             inventoryPanel.SetActive(false);
         }
     }
 
+    // ★★★ 이 Update 함수를 다시 추가하거나 주석 해제하세요 ★★★
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.I))
@@ -35,7 +31,8 @@ public class InventoryUI : MonoBehaviour
     {
         isInventoryOpen = !isInventoryOpen;
         inventoryPanel.SetActive(isInventoryOpen);
-        if(isInventoryOpen) {
+        if(isInventoryOpen) 
+        {
             UpdateUI();
         }
     }

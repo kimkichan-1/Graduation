@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
-using TMPro; // ★★★ TextMeshPro를 사용하기 위해 추가 ★★★
+using TMPro;
 
 public class CharacterStats : MonoBehaviour
 {
@@ -22,7 +22,7 @@ public class CharacterStats : MonoBehaviour
     [Header("체력바 UI")]
     public GameObject healthBarUIParent;
     public Slider healthSlider;
-    public TextMeshProUGUI healthText; // ★★★ 1. 텍스트 참조 변수 추가 ★★★
+    public TextMeshProUGUI healthText;
 
     [Header("빛(Light) 시스템")]
     public int maxLight = 3;
@@ -30,6 +30,7 @@ public class CharacterStats : MonoBehaviour
 
     [Header("전투 책장 시스템")]
     public List<CombatPage> deck = new List<CombatPage>(9);
+    public List<CombatPage> cardCollection = new List<CombatPage>();
     public Dictionary<CombatPage, int> cardCooldowns = new Dictionary<CombatPage, int>();
     public List<CombatPage> revealedCards = new List<CombatPage>();
 
@@ -75,7 +76,7 @@ public class CharacterStats : MonoBehaviour
     
     public void TakeDamage(int damage)
     {
-        if (playerHealth != null)
+        if (playerHealth != null) // 플레이어일 경우
         {
             playerHealth.TakeDamage(damage);
             this.currentHp = playerHealth.GetCurrentHealth();
@@ -89,7 +90,7 @@ public class CharacterStats : MonoBehaviour
                 }
             }
         }
-        else
+        else // 보스일 경우
         {
             currentHp -= Mathf.Max(1, damage - defensePower);
             if (currentHp < 0) currentHp = 0;
@@ -103,6 +104,7 @@ public class CharacterStats : MonoBehaviour
                 {
                     battleController.OnCharacterDefeated(this);
                 }
+                // gameObject.SetActive(false); // 즉시 비활성화하지 않음
             }
         }
     }
@@ -114,8 +116,6 @@ public class CharacterStats : MonoBehaviour
             healthSlider.maxValue = maxHp;
             healthSlider.value = currentHp;
         }
-
-        // ★★★ 2. 텍스트 업데이트 로직 추가 ★★★
         if (healthText != null)
         {
             healthText.text = $"{currentHp} / {maxHp}";
