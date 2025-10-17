@@ -215,15 +215,92 @@ public class GameManager : MonoBehaviour
         PortalController.usedPortalIDs.Clear();
         PortalController.usedPortalIDs.AddRange(data.usedPortals);
 
-        // 씬 로드 (플레이어 스탯은 씬 로드 후 적용)
-        SceneManager.sceneLoaded += OnSceneLoadedForRestore;
-        SceneManager.LoadScene(data.currentScene);
-
         // 임시 저장 (씬 로드 후 사용)
         tempLoadData = data;
+
+        // DontDestroyOnLoad 오브젝트들이 생성되도록 Stage1을 먼저 로드
+        // Stage1에서 필수 오브젝트들이 생성되면 저장된 씬으로 이동
+        SceneManager.sceneLoaded += OnInitialSceneLoaded;
+        Debug.Log("필수 오브젝트 생성을 위해 Stage1 로드 중...");
+        SceneManager.LoadScene("Stage1");
     }
 
     private SaveData tempLoadData; // 씬 로드 중 임시 저장
+
+    /// <summary>
+    /// Stage1 로드 완료 후 저장된 씬으로 이동
+    /// </summary>
+    private void OnInitialSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnInitialSceneLoaded;
+
+        if (tempLoadData == null) return;
+
+        Debug.Log($"Stage1 로드 완료. 저장된 씬 '{tempLoadData.currentScene}'으로 이동 중...");
+
+        // 필수 오브젝트 검증
+        VerifyEssentialObjects();
+
+        // Stage1과 저장된 씬이 같으면 바로 데이터 적용
+        if (tempLoadData.currentScene == "Stage1")
+        {
+            Debug.Log("[LoadGame] 저장된 씬이 Stage1입니다. 바로 데이터 적용합니다.");
+            StartCoroutine(ApplyDataToPlayerCoroutine());
+            return;
+        }
+
+        // 다른 씬이면 저장된 씬으로 이동
+        // 약간의 지연 후 이동 (DontDestroyOnLoad 오브젝트들이 생성될 시간 확보)
+        StartCoroutine(LoadTargetSceneAfterDelay(0.1f));
+    }
+
+    /// <summary>
+    /// 필수 오브젝트들이 제대로 생성되었는지 검증
+    /// </summary>
+    private void VerifyEssentialObjects()
+    {
+        bool allExists = true;
+
+        if (PlayerController.Instance == null)
+        {
+            Debug.LogError("[LoadGame] Player가 생성되지 않았습니다!");
+            allExists = false;
+        }
+
+        if (Camera.main == null)
+        {
+            Debug.LogWarning("[LoadGame] MainCamera가 없습니다!");
+            allExists = false;
+        }
+
+        if (Inventory.instance == null)
+        {
+            Debug.LogWarning("[LoadGame] Inventory가 생성되지 않았습니다!");
+        }
+
+        if (allExists)
+        {
+            Debug.Log("[LoadGame] 모든 필수 오브젝트 생성 확인 완료");
+        }
+        else
+        {
+            Debug.LogError("[LoadGame] 일부 필수 오브젝트가 누락되었습니다. Stage1 씬에 DontDestroyOnLoadManager가 제대로 설정되어 있는지 확인하세요.");
+        }
+    }
+
+    /// <summary>
+    /// 지연 후 실제 저장된 씬으로 이동
+    /// </summary>
+    private System.Collections.IEnumerator LoadTargetSceneAfterDelay(float delay)
+    {
+        yield return new UnityEngine.WaitForSeconds(delay);
+
+        if (tempLoadData != null)
+        {
+            SceneManager.sceneLoaded += OnSceneLoadedForRestore;
+            SceneManager.LoadScene(tempLoadData.currentScene);
+        }
+    }
 
     /// <summary>
     /// 씬 로드 후 플레이어에게 데이터 적용
@@ -234,8 +311,85 @@ public class GameManager : MonoBehaviour
 
         if (tempLoadData == null) return;
 
-        // 플레이어 찾기 (약간의 지연 필요할 수 있음)
-        Invoke(nameof(ApplyDataToPlayer), 0.5f);
+        Debug.Log($"목표 씬 '{scene.name}' 로드 완료. 플레이어 데이터 적용 중...");
+
+        // 코루틴으로 순차 실행하여 확실하게 적용
+        StartCoroutine(ApplyDataToPlayerCoroutine());
+    }
+
+    private System.Collections.IEnumerator ApplyDataToPlayerCoroutine()
+    {
+        // 플레이어가 완전히 초기화될 때까지 대기
+        yield return new WaitForSeconds(0.3f);
+
+        if (tempLoadData == null)
+        {
+            Debug.LogError("[LoadGame] tempLoadData가 null입니다!");
+            isLoadingGame = false;
+            yield break;
+        }
+
+        PlayerController player = PlayerController.Instance;
+        if (player == null)
+        {
+            Debug.LogError("[LoadGame] 플레이어를 찾을 수 없습니다!");
+            isLoadingGame = false;
+            yield break;
+        }
+
+        Debug.Log($"[LoadGame] 플레이어 발견. 데이터 적용 시작...");
+
+        // 1단계: 무기 먼저 장착 (무기 스탯이 다른 스탯에 영향을 주므로)
+        bool weaponEquipped = false;
+        if (tempLoadData.hasSword)
+        {
+            if (swordStats != null)
+            {
+                player.EquipSword(swordStats);
+                weaponEquipped = true;
+                Debug.Log($"[LoadGame] Sword 장착 완료 - 이동속도: {swordStats.moveSpeed}");
+            }
+            else
+            {
+                Debug.LogError("[LoadGame] swordStats가 GameManager에 할당되지 않았습니다!");
+            }
+        }
+        else if (tempLoadData.hasLance)
+        {
+            if (lanceStats != null)
+            {
+                player.EquipLance(lanceStats);
+                weaponEquipped = true;
+                Debug.Log($"[LoadGame] Lance 장착 완료 - 이동속도: {lanceStats.moveSpeed}");
+            }
+            else
+            {
+                Debug.LogError("[LoadGame] lanceStats가 GameManager에 할당되지 않았습니다!");
+            }
+        }
+        else if (tempLoadData.hasMace)
+        {
+            if (maceStats != null)
+            {
+                player.EquipMace(maceStats);
+                weaponEquipped = true;
+                Debug.Log($"[LoadGame] Mace 장착 완료 - 이동속도: {maceStats.moveSpeed}");
+            }
+            else
+            {
+                Debug.LogError("[LoadGame] maceStats가 GameManager에 할당되지 않았습니다!");
+            }
+        }
+
+        if (!weaponEquipped)
+        {
+            Debug.LogWarning("[LoadGame] 무기가 장착되지 않았습니다.");
+        }
+
+        // 무기 장착 후 한 프레임 대기
+        yield return null;
+
+        ApplyDataToPlayer();
     }
 
     private void ApplyDataToPlayer()
@@ -290,11 +444,15 @@ public class GameManager : MonoBehaviour
             tempLoadData.positionZ
         );
 
-        // 무기는 WeaponSpawner가 스폰하고 플레이어가 주워서 장착함
-        // LoadGame 시에는 무기를 자동으로 장착하지 않음
+        Debug.Log($"[LoadGame] 플레이어 위치 설정: ({tempLoadData.positionX}, {tempLoadData.positionY}, {tempLoadData.positionZ})");
+
+        // 무기는 이미 ApplyDataToPlayerCoroutine()에서 장착됨
+        // 여기서는 스탯 재계산만 수행
 
         player.RecalculateStats();
         player.UpdateAllStatsUI();
+
+        Debug.Log($"[LoadGame] 최종 이동속도: {player.moveSpeed}, 무기: Sword={player.hasSword}, Lance={player.hasLance}, Mace={player.hasMace}");
 
         // 로딩 완료 - 플래그 해제
         isLoadingGame = false;
