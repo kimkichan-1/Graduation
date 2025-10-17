@@ -110,22 +110,60 @@ public class PlayerController : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    private Vector3 savedSpawnPosition; // 저장용 스폰포인트 위치 임시 저장
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         PlayerSpawnPoint spawnPoint = FindObjectOfType<PlayerSpawnPoint>();
         if (spawnPoint != null)
         {
             transform.position = spawnPoint.transform.position;
-            
+            savedSpawnPosition = spawnPoint.transform.position; // 스폰포인트 위치 저장
+
             if (characterVisuals != null)
             {
                 characterVisuals.homeTransform = spawnPoint.transform;
                 Debug.Log($"새로운 씬 '{scene.name}'의 스폰 포인트를 homeTransform으로 설정했습니다.");
             }
+
+            // 자동 저장 (특정 씬 제외)
+            if (GameManager.Instance != null && GameManager.Instance.currentSaveSlot > 0)
+            {
+                // 메뉴/로딩 씬에서는 저장하지 않음
+                string[] excludedScenes = { "Main", "LoadGame", "Weapon", "HowToPlay", "Setting" };
+                bool shouldSave = true;
+
+                foreach (string excludedScene in excludedScenes)
+                {
+                    if (scene.name == excludedScene)
+                    {
+                        shouldSave = false;
+                        break;
+                    }
+                }
+
+                if (shouldSave)
+                {
+                    // 약간의 지연 후 저장 (플레이어 초기화 완료 대기)
+                    Invoke(nameof(PerformAutoSave), 0.5f);
+                }
+            }
         }
         else
         {
             Debug.LogWarning($"씬 '{scene.name}'에서 PlayerSpawnPoint를 찾을 수 없습니다!");
+        }
+    }
+
+    /// <summary>
+    /// 자동 저장 실행 - PlayerSpawnPoint 위치로 저장
+    /// </summary>
+    private void PerformAutoSave()
+    {
+        if (GameManager.Instance != null)
+        {
+            // 저장된 스폰포인트 위치를 전달하여 저장
+            GameManager.Instance.AutoSave(savedSpawnPosition);
         }
     }
 

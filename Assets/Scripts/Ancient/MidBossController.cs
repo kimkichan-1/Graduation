@@ -1,18 +1,18 @@
-// ÆÄÀÏ¸í: MidBossController.cs (¼öÁ¤ ¹öÀü)
+// ï¿½ï¿½ï¿½Ï¸ï¿½: MidBossController.cs (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class MidBossController : MonoBehaviour
 {
-    private static List<string> completedEventIDs = new List<string>();
+    public static List<string> completedEventIDs = new List<string>();
     public string eventID = "DefeatedMidBoss";
 
-    [Header("ÀÌº¥Æ® ¿¬µ¿")]
-    // ¡Ú¡Ú¡Ú ¼öÁ¤: GameObject ´ë½Å StatueInteraction ½ºÅ©¸³Æ®¸¦ Á÷Á¢ ¿¬°áÇÕ´Ï´Ù ¡Ú¡Ú¡Ú
-    [Tooltip("Ã³Ä¡ ÈÄ È°¼ºÈ­½ÃÅ³ Æ÷Å» ¿ÀºêÁ§Æ®")]
+    [Header("ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½")]
+    // ï¿½Ú¡Ú¡ï¿½ ï¿½ï¿½ï¿½ï¿½: GameObject ï¿½ï¿½ï¿½ StatueInteraction ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½ ï¿½Ú¡Ú¡ï¿½
+    [Tooltip("Ã³Ä¡ ï¿½ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½Å³ ï¿½ï¿½Å» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®")]
     public StatueInteraction targetPortal;
-    [Tooltip("º¸½º Ã³Ä¡ ÈÄ ³ªÅ¸³¯ ´ëÈ­ ³»¿ë")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ Ã³Ä¡ ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½")]
     [TextArea(3, 10)]
     public string[] deathDialogue;
 
@@ -21,15 +21,15 @@ public class MidBossController : MonoBehaviour
         if (completedEventIDs.Contains(eventID)) return;
         completedEventIDs.Add(eventID);
 
-        // ¡Ú¡Ú¡Ú ¼öÁ¤: SetActive(true) ´ë½Å UnlockPortal() ÇÔ¼ö¸¦ È£ÃâÇÕ´Ï´Ù ¡Ú¡Ú¡Ú
+        // ï¿½Ú¡Ú¡ï¿½ ï¿½ï¿½ï¿½ï¿½: SetActive(true) ï¿½ï¿½ï¿½ UnlockPortal() ï¿½Ô¼ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½Õ´Ï´ï¿½ ï¿½Ú¡Ú¡ï¿½
         if (targetPortal != null)
         {
-            Debug.Log("Áß°£ º¸½º Ã³Ä¡! Æ÷Å»À» È°¼ºÈ­ÇÕ´Ï´Ù.");
-            targetPortal.UnlockPortal(); // Æ÷Å»ÀÇ »óÅÂ¸¦ 'È°¼ºÈ­'·Î º¯°æ
+            Debug.Log("ï¿½ß°ï¿½ ï¿½ï¿½ï¿½ï¿½ Ã³Ä¡! ï¿½ï¿½Å»ï¿½ï¿½ È°ï¿½ï¿½È­ï¿½Õ´Ï´ï¿½.");
+            targetPortal.UnlockPortal(); // ï¿½ï¿½Å»ï¿½ï¿½ ï¿½ï¿½ï¿½Â¸ï¿½ 'È°ï¿½ï¿½È­'ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         }
         else
         {
-            Debug.LogError("MidBossController¿¡ È°¼ºÈ­ÇÒ Æ÷Å»ÀÌ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError("MidBossControllerï¿½ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½Å»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Ò½ï¿½ï¿½Ï´ï¿½!");
         }
 
         if (DialogueController.Instance != null && deathDialogue.Length > 0)

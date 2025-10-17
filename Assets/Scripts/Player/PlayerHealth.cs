@@ -9,7 +9,7 @@ public class PlayerHealth : MonoBehaviour
     public int baseMaxHealth = 100; // 기본 최대 체력
     public int maxHealth = 100;     // 실제 최대 체력 (무기 효과 반영)
     public int defense = 0;         // 방어력
-    private int currentHealth;      // 현재 체력 (private)
+    public int currentHealth;       // 현재 체력
 
     [Header("UI")]
     public Slider healthSlider;     // 체력바 UI (Slider)
@@ -87,7 +87,7 @@ public class PlayerHealth : MonoBehaviour
         UpdateHealthUI();
     }
 
-    private void UpdateHealthUI()
+    public void UpdateHealthUI()
     {
         if (healthSlider != null)
         {

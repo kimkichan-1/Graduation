@@ -5,7 +5,7 @@ using UnityEngine.UI; // Button ������Ʈ�� ����ϱ� �
 
 public class PortalController : MonoBehaviour
 {
-    private static List<string> usedPortalIDs = new List<string>();
+    public static List<string> usedPortalIDs = new List<string>();
 
     [Header("��Ż ����")]
     [Tooltip("�� ��Ż�� �ĺ��� ������ ID�� �����ϼ���. (��: HiddenPortal_Stage1)")]
