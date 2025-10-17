@@ -8,6 +8,7 @@ public class LevelUpUIManager : MonoBehaviour
     [Header("XP Bar")]
     public Slider xpSlider;
     public TextMeshProUGUI levelText;
+    public TextMeshProUGUI xpText; // 경험치 텍스트 (현재경험치/전체경험치)
 
     [Header("Level Up Panel")]
     public GameObject levelUpPanel;
@@ -23,6 +24,12 @@ public class LevelUpUIManager : MonoBehaviour
         if (xpSlider != null)
         {
             xpSlider.value = currentXp / requiredXp;
+        }
+
+        // 경험치 텍스트 업데이트
+        if (xpText != null)
+        {
+            xpText.text = $"{(int)currentXp} / {(int)requiredXp}";
         }
     }
 
