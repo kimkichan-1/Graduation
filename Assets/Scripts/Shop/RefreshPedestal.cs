@@ -75,7 +75,7 @@ public class RefreshPedestal : MonoBehaviour
         {
             int currentCost = ShopManager.Instance.GetCurrentRefreshCost();
             costText.text = $"Refresh\n{currentCost}G";
-            costText.color = Color.cyan;
+            costText.color = Color.black;
         }
     }
 

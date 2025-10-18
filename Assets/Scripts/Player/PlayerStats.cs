@@ -55,6 +55,13 @@ public class PlayerStats : MonoBehaviour
 
     void Start()
     {
+        // 세이브 로드 중이면 Start에서 초기화하지 않음 (GameManager가 데이터 적용 후 UI 업데이트)
+        if (GameManager.Instance != null && GameManager.Instance.isLoadingGame)
+        {
+            Debug.Log("세이브 로드 중이므로 PlayerStats 초기화를 건너뜁니다.");
+            return;
+        }
+
         if (uiManager != null)
         {
             uiManager.UpdateLevelText(level);
@@ -84,6 +91,14 @@ public class PlayerStats : MonoBehaviour
             Debug.Log("Not enough gold.");
             return false;
         }
+    }
+
+    /// <summary>
+    /// Money UI 업데이트 (외부에서 호출용)
+    /// </summary>
+    public void NotifyMoneyChanged()
+    {
+        onMoneyChanged?.Invoke(currentMoney);
     }
 
     public void AddXp(int amount)

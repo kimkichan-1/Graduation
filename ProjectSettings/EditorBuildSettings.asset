@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Weapon.unity
     guid: 1260fdaddd91b294e8cdc945feb9abe8
   - enabled: 1
+    path: Assets/LoadGame.unity
+    guid: 9246158da33d15944a14099a1c353bb3
+  - enabled: 1
     path: Assets/Stage1.unity
     guid: c6531a22ffcdecc4f9252a174f9b815e
   - enabled: 1
@@ -27,11 +30,11 @@ EditorBuildSettings:
     path: Assets/Boss1.unity
     guid: 945e0faa14e6c7e40a14e9b6c15256d8
   - enabled: 1
-    path: Assets/Boss2.unity
-    guid: cc8a69b10a85e7943b08c99aeee6d4d9
-  - enabled: 1
     path: Assets/Stage2.unity
     guid: 60e852e4d4857b24996eeedfce167c96
+  - enabled: 1
+    path: Assets/Boss2.unity
+    guid: cc8a69b10a85e7943b08c99aeee6d4d9
   - enabled: 1
     path: Assets/AncientBlacksmith.unity
     guid: fd72664cf9d575b4ab31b9f98eed7c0a

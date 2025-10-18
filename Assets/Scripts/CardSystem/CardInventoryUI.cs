@@ -1,96 +1,92 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; // Button을 사용하기 위해 추가
+using UnityEngine.UI;
+using System.Linq;
+using TMPro;
 
 public class CardInventoryUI : MonoBehaviour
 {
-    public GameObject cardInventoryPanel;
-    public Transform deckContentPanel; // 덱 슬롯들의 부모 패널
-    public Transform collectionContentPanel; // 소지한 카드 슬롯들의 부모 패널
-    public GameObject cardPrefab; // 카드 UI 프리팹
-    public Button closeButton; // 새로 추가된 닫기 버튼
+    public static CardInventoryUI Instance;
 
-    // 플레이어가 가진 모든 카드의 예시 리스트입니다.
-    public List<CardData> allPlayerCards = new List<CardData>();
+    [Header("UI Panels")]
+    public GameObject cardInventoryPanel;
+    public Transform deckContentPanel;
+    public Transform collectionContentPanel;
+    
+    [Header("Settings")]
+    public Button closeButton;
+
+    private CharacterStats playerCharacterStats;
+
+    void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
         if(cardInventoryPanel != null) cardInventoryPanel.SetActive(false);
-
-        // 닫기 버튼에 리스너를 추가합니다.
         if(closeButton != null) closeButton.onClick.AddListener(CloseInventory);
 
-        PopulateCardCollection();
+        if (PlayerController.Instance != null)
+        {
+            playerCharacterStats = PlayerController.Instance.GetComponent<CharacterStats>();
+        }
     }
-
-    // 인벤토리 열기/닫기 토글 함수
-    public void ToggleInventory()
+    
+    public void OpenCardInventory()
     {
-        if(cardInventoryPanel == null) return;
-
-        bool isActive = !cardInventoryPanel.activeSelf;
-        cardInventoryPanel.SetActive(isActive);
-
-        Time.timeScale = isActive ? 0f : 1f;
+        if (cardInventoryPanel != null)
+        {
+            cardInventoryPanel.SetActive(true);
+        }
+        // UI를 업데이트하는 대신, 이미 슬롯들이 스스로 카드를 띄웠으므로 시간을 멈추기만 합니다.
+        Time.timeScale = 0f;
     }
 
-    // 인벤토리를 닫는 함수
     public void CloseInventory()
     {
-        if(cardInventoryPanel == null) return;
-
-        cardInventoryPanel.SetActive(false);
+        if (cardInventoryPanel != null)
+        {
+            cardInventoryPanel.SetActive(false);
+        }
+        // 닫기 전에 최종 상태를 저장합니다.
+        UpdateAndSaveChanges();
         Time.timeScale = 1f;
     }
 
-    void PopulateCardCollection()
+    // 현재 슬롯들의 상태를 읽어 CharacterStats에 저장하는 함수
+    public void UpdateAndSaveChanges()
     {
-        if(collectionContentPanel == null || cardPrefab == null) return;
+        if (playerCharacterStats == null) return;
 
-        // 컬렉션 영역에 있는 모든 슬롯을 가져옵니다.
-        CardSlot[] collectionSlots = collectionContentPanel.GetComponentsInChildren<CardSlot>();
+        // 각 패널의 슬롯들로부터 현재 카드 데이터를 읽어옵니다.
+        List<CombatPage> newDeck = GetCardsFromPanel(deckContentPanel);
+        List<CombatPage> newCollection = GetCardsFromPanel(collectionContentPanel);
 
-        for (int i = 0; i < allPlayerCards.Count; i++)
-        {
-            // 카드보다 슬롯이 부족하면 중단합니다.
-            if (i >= collectionSlots.Length)
-            {
-                Debug.LogWarning("카드 수보다 컬렉션 슬롯이 부족합니다.");
-                break;
-            }
+        // 읽어온 정보로 CharacterStats의 데이터를 업데이트합니다.
+        playerCharacterStats.deck = newDeck;
+        playerCharacterStats.cardCollection = newDeck.Concat(newCollection).ToList();
 
-            CardSlot slot = collectionSlots[i];
-
-            // 슬롯의 자식으로 카드 프리팹을 생성합니다.
-            GameObject cardObject = Instantiate(cardPrefab, slot.transform);
-            cardObject.transform.localPosition = Vector3.zero;
-
-            DraggableCard draggableCard = cardObject.GetComponent<DraggableCard>();
-            if (draggableCard != null)
-            {
-                draggableCard.SetCardData(allPlayerCards[i]);
-            }
-        }
+        playerCharacterStats.SortDeckByCost();
+        Debug.Log("덱이 실시간으로 저장되었습니다!");
     }
 
-    // 현재 덱에 있는 카드 리스트를 가져오는 함수
-    public List<CardData> GetDeck()
+    // 지정된 패널의 모든 슬롯들로부터 현재 카드 데이터를 읽어오는 함수
+    List<CombatPage> GetCardsFromPanel(Transform panel)
     {
-        List<CardData> deck = new List<CardData>();
-        if(deckContentPanel == null) return deck;
+        List<CombatPage> cards = new List<CombatPage>();
+        if(panel == null) return cards;
 
-        CardSlot[] deckSlots = deckContentPanel.GetComponentsInChildren<CardSlot>();
-        foreach (CardSlot slot in deckSlots)
+        CardSlot[] slots = panel.GetComponentsInChildren<CardSlot>();
+        foreach (CardSlot slot in slots)
         {
-            if (slot.transform.childCount > 0)
+            CombatPage cardData = slot.GetCurrentCardData();
+            if (cardData != null)
             {
-                DraggableCard card = slot.transform.GetChild(0).GetComponent<DraggableCard>();
-                if (card != null)
-                {
-                    deck.Add(card.cardData);
-                }
+                cards.Add(cardData);
             }
         }
-        return deck;
+        return cards;
     }
 }

@@ -12,7 +12,8 @@ public class ShopItemData : ScriptableObject
         AttackUpgrade,       // 공격력 영구 증가
         DefenseUpgrade,      // 방어력 영구 증가
         HealthUpgrade,       // 최대 체력 영구 증가
-        SpeedUpgrade         // 이동속도 영구 증가
+        SpeedUpgrade,        // 이동속도 영구 증가
+        XPUpgrade            // 경험치 증가
     }
 
     [Header("기본 정보")]
@@ -85,6 +86,14 @@ public class ShopItemData : ScriptableObject
                     player.RecalculateStats();
                     player.UpdateAllStatsUI();
                     Debug.Log($"이동속도가 {effectValue} 증가했습니다! (총 보너스: {stats.bonusMoveSpeed})");
+                }
+                break;
+
+            case ItemType.XPUpgrade:
+                if (stats != null)
+                {
+                    stats.AddXp(effectValue);
+                    Debug.Log($"경험치 {effectValue}를 획득했습니다! (현재: {stats.currentXp}/{stats.xpToNextLevel})");
                 }
                 break;
         }
