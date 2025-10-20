@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 6379676441954125773}
   - component: {fileID: 7188450613110199722}
   - component: {fileID: 1011297760792580887}
+  - component: {fileID: -3670358697433244385}
   m_Layer: 7
   m_Name: Clammonster
   m_TagString: Enemy
@@ -244,16 +245,18 @@ MonoBehaviour:
   maxMoveDuration: 3
   minPauseDuration: 0.5
   maxPauseDuration: 2
-  detectionRadius: 5
-  attackRadius: 1
+  detectionSize: {x: 10, y: 10}
+  detectionOffset: {x: 0, y: 0}
+  attackSize: {x: 2, y: 2}
+  attackOffset: {x: 0, y: 0}
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
   groundLayer:
     serializedVersion: 2
     m_Bits: 320
-  attackDamage: 10
-  attackCooldown: 1
+  attackDamage: 20
+  attackCooldown: 3
   attackSound: {fileID: 0}
   attackHitbox: {fileID: 5659978944721908361}
   wallCheck: {fileID: 3079696495051086761}
@@ -277,11 +280,17 @@ MonoBehaviour:
   deathDialogue: []
   targetStatue: {fileID: 0}
   maxHealth: 300
-  defense: 0
-  xpValue: 10
+  defense: 20
+  xpValue: 50
   healthBar: {fileID: 7948920634088710474}
   damageTextPrefab: {fileID: 7576095758979449151, guid: 0a244c659ebae43479b80c1af3134bab, type: 3}
   damageTextOffset: {x: 0, y: 1, z: 5}
+  hitEffectPrefab: {fileID: 4688160674155996200, guid: 30045067a5c548042951bed16d05341b, type: 3}
+  hitEffectDuration: 0.5
+  randomRangeX: {x: -0.5, y: 0.5}
+  randomRangeY: {x: -0.5, y: 0.5}
+  hurtAnimationProbability: 0.3
+  flashDuration: 0.1
   deathSound: {fileID: 0}
   hitSound: {fileID: 0}
   deathAnimationDuration: 1
@@ -358,6 +367,28 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
+--- !u!114 &-3670358697433244385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2603111409971846006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b6c44e9863fc84c9e196314503457d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectionRadius: 8
+  attackRadius: 3
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  attackDamage: 15
+  attackCooldown: 2
+  attackSound: {fileID: 0}
+  attackHitbox: {fileID: 0}
+  pearlPrefab: {fileID: 8899083730283333015, guid: 01c9409cdaacd1145a828858d5a752b1, type: 3}
 --- !u!1 &2645677657078106330
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,8 +753,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.18, y: 320}
-  m_SizeDelta: {x: 160, y: 20}
+  m_AnchoredPosition: {x: -0.27, y: 295}
+  m_SizeDelta: {x: 160, y: 1295.23}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7948920634088710474
 MonoBehaviour:
