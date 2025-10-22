@@ -19,7 +19,7 @@ public class RefreshPedestal : MonoBehaviour
 
     private bool isPlayerNearby = false;
 
-    void Start()
+    void OnEnable()
     {
         if (interactionPrompt != null)
         {
@@ -74,8 +74,9 @@ public class RefreshPedestal : MonoBehaviour
         if (costText != null && ShopManager.Instance != null)
         {
             int currentCost = ShopManager.Instance.GetCurrentRefreshCost();
-            costText.text = $"Refresh\n{currentCost}G";
             costText.color = Color.gray;
+            costText.text = $"Refresh\n{currentCost}G";
+            
         }
     }
 

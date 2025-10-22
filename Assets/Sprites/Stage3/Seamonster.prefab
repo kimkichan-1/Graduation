@@ -93,6 +93,8 @@ GameObject:
   - component: {fileID: 4035572033942253799}
   - component: {fileID: 2336442248383010111}
   - component: {fileID: 4359051043128122740}
+  - component: {fileID: -911999697013926925}
+  - component: {fileID: 4863764281746529588}
   m_Layer: 7
   m_Name: Seamonster
   m_TagString: Enemy
@@ -286,8 +288,10 @@ MonoBehaviour:
   maxMoveDuration: 3
   minPauseDuration: 0.5
   maxPauseDuration: 2
-  detectionRadius: 5
-  attackRadius: 2
+  detectionSize: {x: 10, y: 10}
+  detectionOffset: {x: 0, y: 0}
+  attackSize: {x: 2, y: 2}
+  attackOffset: {x: 0, y: 0}
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -324,9 +328,74 @@ MonoBehaviour:
   healthBar: {fileID: 4901228583451262498}
   damageTextPrefab: {fileID: 7576095758979449151, guid: 0a244c659ebae43479b80c1af3134bab, type: 3}
   damageTextOffset: {x: 0, y: 0.5, z: 5}
+  hitEffectPrefab: {fileID: 4688160674155996200, guid: 30045067a5c548042951bed16d05341b, type: 3}
+  hitEffectDuration: 0.5
+  randomRangeX: {x: -0.5, y: 0.5}
+  randomRangeY: {x: -0.5, y: 0.5}
+  hurtAnimationProbability: 0.3
+  flashDuration: 0.1
   deathSound: {fileID: 0}
   hitSound: {fileID: 0}
   deathAnimationDuration: 0.8
+--- !u!114 &-911999697013926925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2702869483234219603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c452a89ab68b4b45b58a29932a853e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4863764281746529588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2702869483234219603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fda212d1d7d2626418c0a6bb0d8f9d2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinPrefab: {fileID: 1806965868320496998, guid: f11af72e0dfbf82479d8e5d54691c1b3, type: 3}
+  baseGoldDrop: 100
+  goldDropRange: 0.2
+  minCoinCount: 5
+  maxCoinCount: 10
+  itemDropList:
+  - itemPrefab: {fileID: 4588468919509396396, guid: 0eab7035af9340641946c371ca2345c1, type: 3}
+    dropChance: 10
+    minDropCount: 1
+    maxDropCount: 1
+  - itemPrefab: {fileID: 2657423303460945496, guid: cca5cb53a80350445873d1f293c8395f, type: 3}
+    dropChance: 2
+    minDropCount: 1
+    maxDropCount: 1
+  - itemPrefab: {fileID: 4671173666858946743, guid: 98a6b0c5304c94e4c8b40871a1761aa2, type: 3}
+    dropChance: 0.5
+    minDropCount: 1
+    maxDropCount: 1
+  - itemPrefab: {fileID: 5957329853734043331, guid: e80a50e0b5c837d48a95d82370b99e47, type: 3}
+    dropChance: 5
+    minDropCount: 1
+    maxDropCount: 1
+  - itemPrefab: {fileID: 4988119175977235638, guid: daabd7ff204e60745a18c39caf3570f1, type: 3}
+    dropChance: 5
+    minDropCount: 1
+    maxDropCount: 1
+  - itemPrefab: {fileID: 1016689150354417925, guid: a56484ce7b7f25643b56eb86b25db73b, type: 3}
+    dropChance: 5
+    minDropCount: 1
+    maxDropCount: 1
+  - itemPrefab: {fileID: 9055460090049634080, guid: eaf9204d8717dcd4dbb6c5fda467a680, type: 3}
+    dropChance: 5
+    minDropCount: 1
+    maxDropCount: 1
+  dropForce: 5
 --- !u!1 &4638932133445316905
 GameObject:
   m_ObjectHideFlags: 0

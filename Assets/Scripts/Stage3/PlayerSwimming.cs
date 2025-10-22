@@ -14,30 +14,37 @@ public class PlayerSwimming : MonoBehaviour
     public float wallCheckRadius = 0.1f;
     public LayerMask wallLayer;
 
+    // --- ▼▼▼▼▼ 수정된 부분 (점프 카운트 관련) ▼▼▼▼▼ ---
+    [Header("상승 제한")]
+    [SerializeField] private int maxAscendCount = 5; // 물 속에서 연속 상승 가능한 횟수 (5회로 변경)
+    private int currentAscendCount = 0;
+    // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
+
+    // --- ▼▼▼▼▼ 추가된 부분 (땅 감지 관련) ▼▼▼▼▼ ---
+    [Header("땅 감지 설정")]
+    [SerializeField] private Transform groundCheck; // 플레이어 발밑 위치 (빈 오브젝트 연결)
+    [SerializeField] private float groundCheckRadius = 0.2f; // 땅 감지 범위
+    [SerializeField] private LayerMask groundLayer; // 땅으로 인식할 레이어
+    private bool isGrounded = false; // 현재 땅에 닿아있는지 여부
+    // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
+
     private Rigidbody2D rb;
     private float originalGravityScale;
     private float moveInput;
 
     private PhysicsMaterial2D noFrictionMaterial;
     private PhysicsMaterial2D originalMaterial;
-
-    // --- ▼▼▼▼▼ 수정된 부분 (PlayerController 참조 추가) ▼▼▼▼▼ ---
-    private PlayerController playerController; // PlayerController 참조
-    // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
+    private PlayerController playerController;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-
-        // --- ▼▼▼▼▼ 수정된 부분 (PlayerController 참조 찾기) ▼▼▼▼▼ ---
-        // PlayerController 컴포넌트를 찾아서 변수에 저장
         playerController = GetComponent<PlayerController>();
-        // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
 
-        if (wallCheck == null)
-        {
-            wallCheck = transform.Find("WallCheck");
-        }
+        if (wallCheck == null) wallCheck = transform.Find("WallCheck");
+        // --- ▼▼▼▼▼ 추가된 부분 (GroundCheck 자동 찾기) ▼▼▼▼▼ ---
+        if (groundCheck == null) groundCheck = transform.Find("GroundCheck");
+        // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
 
         noFrictionMaterial = new PhysicsMaterial2D("NoFriction_Swim");
         noFrictionMaterial.friction = 0f;
@@ -49,9 +56,9 @@ public class PlayerSwimming : MonoBehaviour
         originalGravityScale = rb.gravityScale;
         rb.gravityScale = gravityScaleInWater;
         rb.linearDamping = waterDrag;
-
         originalMaterial = rb.sharedMaterial;
         rb.sharedMaterial = noFrictionMaterial;
+        currentAscendCount = 0; // 활성화 시 카운트 초기화
     }
 
     void OnDisable()
@@ -65,22 +72,26 @@ public class PlayerSwimming : MonoBehaviour
     {
         moveInput = Input.GetAxisRaw("Horizontal");
 
-        if (Input.GetKeyDown(KeyCode.K))
+        // 'K'키를 누르고, 아직 최대 상승 횟수에 도달하지 않았을 때
+        if (Input.GetKeyDown(KeyCode.K) && currentAscendCount < maxAscendCount)
         {
+            currentAscendCount++;
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.8f);
             rb.AddForce(Vector2.up * ascendForce, ForceMode2D.Impulse);
         }
     }
 
     void FixedUpdate()
     {
-        // --- ▼▼▼▼▼ 수정된 부분 (대시 중일 때 움직임 제어 방지) ▼▼▼▼▼ ---
-        // PlayerController가 존재하고, 현재 대시 중(IsDashing())이라면
-        // PlayerSwimming의 움직임 로직을 실행하지 않고 건너뜁니다.
         if (playerController != null && playerController.IsDashing())
         {
-            return; // 대시 중에는 수영 이동 로직 실행 안 함
+            return;
         }
-        // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
+
+        // --- ▼▼▼▼▼ 추가된 부분 (땅 감지 로직) ▼▼▼▼▼ ---
+        // 매 프레임 땅에 닿아있는지 확인
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
 
         bool isTouchingWall = false;
         if (wallCheck != null)
@@ -95,7 +106,26 @@ public class PlayerSwimming : MonoBehaviour
             currentMoveSpeed = 0;
         }
 
-        // Rigidbody2D의 velocity를 직접 설정합니다. (기존 방식 유지)
-        rb.linearVelocity = new Vector2(moveInput * currentMoveSpeed, rb.linearVelocity.y);
+        rb.velocity = new Vector2(moveInput * currentMoveSpeed, rb.velocity.y);
+
+        // --- ▼▼▼▼▼ 수정된 부분 (상승 횟수 초기화 조건 변경) ▼▼▼▼▼ ---
+        // 플레이어가 땅(Ground)에 착지하면 상승 횟수를 초기화합니다.
+        if (isGrounded)
+        {
+            currentAscendCount = 0;
+        }
+        // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
     }
+
+    // --- ▼▼▼▼▼ 추가된 부분 (땅 감지 범위 시각화) ▼▼▼▼▼ ---
+    // Scene 뷰에서 땅 감지 범위를 원으로 표시 (디버깅용)
+    private void OnDrawGizmosSelected()
+    {
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
+    }
+    // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
 }
