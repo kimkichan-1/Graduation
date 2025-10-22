@@ -1308,7 +1308,7 @@ MonoBehaviour:
   playerClashPosition: {fileID: 1369199484}
   bossClashPosition: {fileID: 587855268}
   mainCameraController: {fileID: 0}
-  diceAnimationManager: {fileID: 0}
+  diceAnimationManager: {fileID: 299485540}
   victoryText: {fileID: 372536496}
   nextStageName: Stage3
 --- !u!4 &205355726
@@ -5381,6 +5381,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 236b56ba1a00653488248054c61e8860, type: 2}
   - {fileID: 11400000, guid: b2e9fe975464e5b49a3514723b759fc1, type: 2}
   - {fileID: 11400000, guid: 0222eb28fe0bbbc49a9308f0bf476392, type: 2}
+  cardCollection: []
   revealedCards: []
 --- !u!114 &842154435
 MonoBehaviour:
