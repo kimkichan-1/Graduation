@@ -29,14 +29,16 @@ public class BattleController : MonoBehaviour
 
     [Header("카메라 컨트롤러")]
     public CameraController mainCameraController;
-
-    [Header("주사위 애니메이션")]
-    public DiceAnimationManager diceAnimationManager;
-
+    
     [Header("승리 연출")]
     public TextMeshProUGUI victoryText;
     public string nextStageName = "Stage2";
+    
+    [Header("넉백 설정")]
+    public float knockbackPower = 0.1f;
 
+    private Vector3 originalPlayerClashPos;
+    private Vector3 originalBossClashPos;
     private int currentPage = 0;
     private const int cardsPerPage = 3;
     private bool isPlayerActionsConfirmed = false;
@@ -52,6 +54,9 @@ public class BattleController : MonoBehaviour
         nextButton.onClick.AddListener(ShowNextGroup);
         previousButton.onClick.AddListener(ShowPreviousGroup);
         viewEnemyDeckButton.onClick.AddListener(ToggleDeckViewMode);
+
+        if (playerClashPosition != null) originalPlayerClashPos = playerClashPosition.position;
+        if (bossClashPosition != null) originalBossClashPos = bossClashPosition.position;
         
         StartCoroutine(SetupBattle());
     }
@@ -82,7 +87,6 @@ public class BattleController : MonoBehaviour
                 player = PlayerController.Instance.GetComponent<CharacterStats>();
             }
         }
-
         if (player != null)
         {
             player.InitializeFromPlayerScripts();
@@ -101,6 +105,167 @@ public class BattleController : MonoBehaviour
         yield return null;
     }
 
+    IEnumerator StartClashPhase()
+    {
+        isPlayerActionsConfirmed = false;
+        CharacterVisuals playerVisuals = player.GetComponent<CharacterVisuals>();
+        CharacterVisuals bossVisuals = boss.GetComponent<CharacterVisuals>();
+
+        if (mainCameraController != null)
+        {
+            yield return StartCoroutine(mainCameraController.ZoomIn());
+        }
+        
+        int clashCount = playerActionQueueUI.Count;
+        for (int i = 0; i < clashCount; i++)
+        {
+            if (i >= bossActionQueue.Count) break;
+
+            playerVisuals.FaceOpponent(boss.transform);
+            bossVisuals.FaceOpponent(player.transform);
+
+            StartCoroutine(playerVisuals.MoveToPosition(playerClashPosition.position, 0.2f));
+            StartCoroutine(bossVisuals.MoveToPosition(bossClashPosition.position, 0.2f));
+            yield return new WaitForSeconds(0.2f);
+            
+            CombatPage playerPage = playerActionQueueUI[i].assignedPage;
+            CombatPage bossPage = bossActionQueue[i];
+
+            ClashManager.ResolveClash(player, playerPage, boss, bossPage);
+            
+            yield return new WaitForSeconds(1.0f);
+
+            if (player.currentHp <= 0 || boss.currentHp <= 0)
+            {
+                break; 
+            }
+        }
+
+        Debug.Log("캐릭터들을 원래 위치로 복귀...");
+        if (player.currentHp > 0)
+        {
+            StartCoroutine(playerVisuals.ReturnToHomePosition(0.5f));
+        }
+        if (boss.currentHp > 0)
+        {
+            StartCoroutine(bossVisuals.ReturnToHomePosition(0.5f));
+        }
+        yield return new WaitForSeconds(0.5f);
+
+        if (mainCameraController != null)
+        {
+            yield return StartCoroutine(mainCameraController.ZoomOut());
+        }
+
+        Debug.Log("======== 페이즈 종료 ========");
+        
+        foreach(var actionCardUI in playerActionQueueUI)
+        {
+            player.SetCardCooldown(actionCardUI.assignedPage);
+        }
+        foreach(var bossPage in bossActionQueue)
+        {
+            boss.SetCardCooldown(bossPage);
+        }
+
+        StartCoroutine(SetupNewTurn());
+    }
+
+    IEnumerator SetupNewTurn()
+    {
+        if (player.currentHp <= 0 || boss.currentHp <= 0)
+        {
+            yield break;
+        }
+
+        Debug.Log("======== 새로운 턴 시작 ========");
+
+        if (playerClashPosition != null) playerClashPosition.position = originalPlayerClashPos;
+        if (bossClashPosition != null) bossClashPosition.position = originalBossClashPos;
+        
+        foreach (var ui in playerActionQueueUI)
+        {
+            if(ui != null) Destroy(ui.gameObject);
+        }
+        playerActionQueueUI.Clear();
+        bossActionQueue.Clear();
+
+        player.OnNewTurnStart();
+        boss.OnNewTurnStart();
+        BossSelectsActions();
+
+        isPlayerActionsConfirmed = false;
+        handPanel.gameObject.SetActive(true);
+        nextButton.gameObject.SetActive(true);
+        previousButton.gameObject.SetActive(true);
+        viewEnemyDeckButton.gameObject.SetActive(true);
+        deckViewModeText.gameObject.SetActive(true);
+        
+        isViewingBoss = false;
+        currentPage = 0;
+        DisplayCurrentGroupCards();
+        yield return null;
+    }
+
+    public void ApplyClashPointKnockback(CharacterStats character, float distance)
+    {
+        CharacterVisuals visuals = character.GetComponent<CharacterVisuals>();
+        if (visuals == null || visuals.homeTransform == null) return;
+
+        Vector3 knockbackDirection = (visuals.homeTransform.position - character.transform.position).normalized;
+        if (character == player)
+        {
+            playerClashPosition.position += knockbackDirection * distance;
+        }
+        else if (character == boss)
+        {
+            bossClashPosition.position += knockbackDirection * distance;
+        }
+    }
+    
+    public void OnCharacterDefeated(CharacterStats defeatedCharacter)
+    {
+        if (defeatedCharacter == boss)
+        {
+            StartCoroutine(VictorySequence());
+        }
+        else if (defeatedCharacter == player)
+        {
+            Debug.Log("플레이어가 패배했습니다...");
+        }
+    }
+
+    private IEnumerator VictorySequence()
+    {
+        Debug.Log("보스 처치! 승리했습니다!");
+        
+        if (boss != null && boss.healthBarUIParent != null)
+        {
+            boss.healthBarUIParent.SetActive(false);
+        }
+
+        yield return new WaitForSeconds(1.0f); 
+
+        if (boss != null)
+        {
+            boss.gameObject.SetActive(false);
+        }
+
+        if (victoryText != null)
+        {
+            victoryText.gameObject.SetActive(true);
+        }
+
+        yield return new WaitForSeconds(10f);
+
+        if (BossGameManager.Instance != null)
+        {
+            BossGameManager.Instance.ChangeState(GameState.Exploration);
+        }
+        
+        SceneManager.LoadScene(nextStageName);
+    }
+    
     public void ToggleDeckViewMode()
     {
         isViewingBoss = !isViewingBoss;
@@ -179,119 +344,6 @@ public class BattleController : MonoBehaviour
             if(card != null) card.UpdateState(player);
         }
     }
-    
-    IEnumerator StartClashPhase()
-    {
-        isPlayerActionsConfirmed = false;
-
-        CharacterVisuals playerVisuals = player.GetComponent<CharacterVisuals>();
-        CharacterVisuals bossVisuals = boss.GetComponent<CharacterVisuals>();
-
-        if (mainCameraController != null)
-        {
-            yield return StartCoroutine(mainCameraController.ZoomIn());
-        }
-        
-        playerVisuals.FaceOpponent(boss.transform);
-        bossVisuals.FaceOpponent(player.transform);
-
-        Debug.Log("캐릭터들을 전투 위치로 이동...");
-        StartCoroutine(playerVisuals.MoveToPosition(playerClashPosition.position, 0.5f));
-        StartCoroutine(bossVisuals.MoveToPosition(bossClashPosition.position, 0.5f));
-        yield return new WaitForSeconds(0.5f);
-
-        int clashCount = playerActionQueueUI.Count;
-        for (int i = 0; i < clashCount; i++)
-        {
-            if (i >= bossActionQueue.Count) break;
-
-            Debug.Log($"--------- [ {i + 1}번째 합 ] ---------");
-            CombatPage playerPage = playerActionQueueUI[i].assignedPage;
-            CombatPage bossPage = bossActionQueue[i];
-
-            // DiceAnimationManager가 있으면 애니메이션과 함께, 없으면 ClashManager 직접 호출
-            if (diceAnimationManager != null)
-            {
-                diceAnimationManager.SetupDiceVisuals(playerPage, bossPage);
-                yield return StartCoroutine(diceAnimationManager.AnimateClashSequence(player, playerPage, boss, bossPage));
-            }
-            else
-            {
-                ClashManager.ResolveClash(player, playerPage, boss, bossPage);
-                yield return new WaitForSeconds(1.5f);
-            }
-
-            if (player.currentHp <= 0 || boss.currentHp <= 0)
-            {
-                break;
-            }
-        }
-
-        playerVisuals.FaceOpponent(boss.transform);
-        bossVisuals.FaceOpponent(player.transform);
-        
-        Debug.Log("캐릭터들을 원래 위치로 복귀...");
-        if (player.currentHp > 0)
-        {
-            StartCoroutine(playerVisuals.ReturnToHomePosition(0.5f));
-        }
-        if (boss.currentHp > 0)
-        {
-            StartCoroutine(bossVisuals.ReturnToHomePosition(0.5f));
-        }
-        yield return new WaitForSeconds(0.5f);
-
-        if (mainCameraController != null)
-        {
-            yield return StartCoroutine(mainCameraController.ZoomOut());
-        }
-
-        Debug.Log("======== 페이즈 종료 ========");
-        
-        foreach(var actionCardUI in playerActionQueueUI)
-        {
-            player.SetCardCooldown(actionCardUI.assignedPage);
-        }
-        foreach(var bossPage in bossActionQueue)
-        {
-            boss.SetCardCooldown(bossPage);
-        }
-
-        StartCoroutine(SetupNewTurn());
-    }
-
-    IEnumerator SetupNewTurn()
-    {
-        if (player.currentHp <= 0 || boss.currentHp <= 0)
-        {
-            yield break;
-        }
-
-        Debug.Log("======== 새로운 턴 시작 ========");
-        
-        foreach (var ui in playerActionQueueUI)
-        {
-            if(ui != null) Destroy(ui.gameObject);
-        }
-        playerActionQueueUI.Clear();
-        bossActionQueue.Clear();
-
-        player.OnNewTurnStart();
-        boss.OnNewTurnStart();
-        BossSelectsActions();
-
-        isPlayerActionsConfirmed = false;
-        handPanel.gameObject.SetActive(true);
-        nextButton.gameObject.SetActive(true);
-        previousButton.gameObject.SetActive(true);
-        viewEnemyDeckButton.gameObject.SetActive(true);
-        deckViewModeText.gameObject.SetActive(true);
-        
-        isViewingBoss = false;
-        currentPage = 0;
-        DisplayCurrentGroupCards();
-        yield return null;
-    }
 
     private void BossSelectsActions()
     {
@@ -312,48 +364,5 @@ public class BattleController : MonoBehaviour
             if (cardsSelected >= 3) break;
         }
         Debug.Log($"보스가 이번 턴의 행동을 랜덤으로 결정했습니다. (총 {bossActionQueue.Count}개)");
-    }
-    
-    public void OnCharacterDefeated(CharacterStats defeatedCharacter)
-    {
-        if (defeatedCharacter == boss)
-        {
-            StartCoroutine(VictorySequence());
-        }
-        else if (defeatedCharacter == player)
-        {
-            Debug.Log("플레이어가 패배했습니다...");
-        }
-    }
-
-    private IEnumerator VictorySequence()
-    {
-        Debug.Log("보스 처치! 승리했습니다!");
-
-        if (boss != null && boss.healthBarUIParent != null)
-        {
-            boss.healthBarUIParent.SetActive(false);
-        }
-
-        yield return new WaitForSeconds(1.0f); 
-
-        if (boss != null)
-        {
-            boss.gameObject.SetActive(false);
-        }
-
-        if (victoryText != null)
-        {
-            victoryText.gameObject.SetActive(true);
-        }
-
-        yield return new WaitForSeconds(10f);
-
-        if (BossGameManager.Instance != null)
-        {
-            BossGameManager.Instance.ChangeState(GameState.Exploration);
-        }
-        
-        SceneManager.LoadScene(nextStageName);
     }
 }

@@ -10,7 +10,7 @@ public class ClashManager
         int diceIndexA = 0;
         int diceIndexB = 0;
 
-        // --- 1단계: 합(Clash) 진행 ---
+        // --- 1단계: 합(Clash) 진행 (while 루프 복구) ---
         while (diceIndexA < pageA.diceList.Count && diceIndexB < pageB.diceList.Count)
         {
             CombatDice diceA = pageA.diceList[diceIndexA];
@@ -61,6 +61,7 @@ public class ClashManager
                         characterB.TakeDamage(counterDamage);
                         break;
                 }
+                diceIndexB++; // 진 쪽(B)의 주사위만 파괴
             }
             else if (rollB > rollA) // B가 승리
             {
@@ -91,18 +92,18 @@ public class ClashManager
                         characterA.TakeDamage(counterDamage);
                         break;
                 }
+                diceIndexA++; // 진 쪽(A)의 주사위만 파괴
             }
             else // 무승부
             {
                 logMessage += "<b>결과:</b> <color=grey><b>무승부!</b></color>";
                 Debug.Log(logMessage);
+                diceIndexA++;
+                diceIndexB++;
             }
-
-            diceIndexA++;
-            diceIndexB++;
         }
 
-        // --- 2단계: 일방 공격 진행 ---
+        // --- 2단계: 일방 공격 진행 (로직 복구) ---
         Debug.Log("--- 합 종료, 남은 주사위로 일방 공격 ---");
 
         while (diceIndexA < pageA.diceList.Count)

@@ -10,6 +10,7 @@ public class CharacterStats : MonoBehaviour
     private PlayerController playerController;
     private PlayerHealth playerHealth;
     private PlayerStats playerStats;
+    private CharacterVisuals characterVisuals;
 
     [Header("전투용 스탯")]
     public string characterName = "사서";
@@ -36,6 +37,8 @@ public class CharacterStats : MonoBehaviour
 
     void Awake()
     {
+        characterVisuals = GetComponent<CharacterVisuals>();
+        
         if (battleController == null)
         {
             battleController = FindObjectOfType<BattleController>();
@@ -60,11 +63,8 @@ public class CharacterStats : MonoBehaviour
         {
             this.currentHp = this.maxHp;
             UpdateHealthUI();
-            Debug.Log($"{characterName}의 스탯을 인스펙터 기본값으로 초기화합니다.");
             return;
         }
-
-        Debug.Log("Player 스크립트들로부터 전투 스탯을 복사합니다...");
         
         this.maxHp = playerHealth.maxHealth;
         this.currentHp = playerHealth.GetCurrentHealth();
@@ -76,35 +76,34 @@ public class CharacterStats : MonoBehaviour
     
     public void TakeDamage(int damage)
     {
-        if (playerHealth != null) // 플레이어일 경우
+        if (battleController != null && characterVisuals != null && damage > 0)
+        {
+            float knockbackDistance = damage * battleController.knockbackPower;
+            StartCoroutine(characterVisuals.Knockback(knockbackDistance, 0.2f));
+            battleController.ApplyClashPointKnockback(this, knockbackDistance);
+        }
+
+        if (playerHealth != null)
         {
             playerHealth.TakeDamage(damage);
             this.currentHp = playerHealth.GetCurrentHealth();
             UpdateHealthUI();
             
-            if(this.currentHp <= 0)
+            if(this.currentHp <= 0 && battleController != null)
             {
-                if (battleController != null)
-                {
-                    battleController.OnCharacterDefeated(this);
-                }
+                battleController.OnCharacterDefeated(this);
             }
         }
-        else // 보스일 경우
+        else
         {
             currentHp -= Mathf.Max(1, damage - defensePower);
             if (currentHp < 0) currentHp = 0;
             
             UpdateHealthUI();
 
-            Debug.Log($"{characterName}이(가) {damage}의 피해를 입었습니다! 남은 체력: {currentHp}");
-            if (currentHp <= 0)
+            if (currentHp <= 0 && battleController != null)
             {
-                if (battleController != null)
-                {
-                    battleController.OnCharacterDefeated(this);
-                }
-                // gameObject.SetActive(false); // 즉시 비활성화하지 않음
+                battleController.OnCharacterDefeated(this);
             }
         }
     }
@@ -136,7 +135,7 @@ public class CharacterStats : MonoBehaviour
         List<CombatPage> keys = new List<CombatPage>(cardCooldowns.Keys);
         foreach (var page in keys)
         {
-            if (cardCooldowns[page] > 0)
+            if (cardCooldowns.ContainsKey(page) && cardCooldowns[page] > 0)
             {
                 cardCooldowns[page]--;
             }
