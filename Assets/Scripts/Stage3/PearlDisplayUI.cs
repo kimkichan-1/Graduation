@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class PearlDisplayUI : MonoBehaviour
 {
@@ -13,6 +14,12 @@ public class PearlDisplayUI : MonoBehaviour
     [SerializeField] private int maxPearls = 3;
     private int currentPearls = 0;
     public int GetCurrentPearls() { return currentPearls; }
+
+    [Header("진주 3개 달성 시 대화")]
+    [SerializeField] private GameObject dialoguePanel; // 대화창 UI 패널
+    [SerializeField] private TextMeshProUGUI dialogueText; // 대화 내용 텍스트
+    [SerializeField, TextArea(3, 5)] private string[] allPearlsCollectedDialogue; // 진주 3개 모았을 때 대화
+    private bool dialogueShown = false; // 대화가 이미 표시되었는지 확인하는 스위치
 
     void Awake()
     {
@@ -44,6 +51,33 @@ public class PearlDisplayUI : MonoBehaviour
         Debug.Log("진주 획득! 현재: " + currentPearls + "/" + maxPearls);
 
         UpdatePearlUI();
+            if (currentPearls >= maxPearls && !dialogueShown)
+        {
+            // 대화 표시 코루틴 시작
+            StartCoroutine(ShowAllPearlsCollectedDialogue());
+        }
+    }
+    private IEnumerator ShowAllPearlsCollectedDialogue()
+    {
+        dialogueShown = true; // 대화를 표시했으므로 스위치를 켬
+
+        // 플레이어 찾기 및 이동 불가 + 게임 일시정지
+        PlayerController playerController = FindObjectOfType<PlayerController>();
+        Time.timeScale = 0f;
+        if (playerController != null) playerController.canMove = false;
+
+        dialoguePanel.SetActive(true);
+        foreach (var line in allPearlsCollectedDialogue)
+        {
+            dialogueText.text = line;
+            yield return new WaitUntil(() => Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.W));
+            yield return null;
+        }
+        dialoguePanel.SetActive(false);
+
+        // 게임 재개 및 이동 가능
+        if (playerController != null) playerController.canMove = true;
+        Time.timeScale = 1f;
     }
 
     // [Public 함수] 진주를 사용하려고 할 때 외부에서 호출합니다.

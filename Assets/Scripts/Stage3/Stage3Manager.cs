@@ -1,4 +1,6 @@
+using TMPro;
 using UnityEngine;
+using System.Collections; // 코루틴 사용 시 필요
 
 public class Stage3Manager : MonoBehaviour
 {
@@ -12,6 +14,14 @@ public class Stage3Manager : MonoBehaviour
     [SerializeField] private GameObject clamMonsterPrefab; // 스폰할 조개 몬스터 프리팹
     [Tooltip("ClamMonster가 나타날 위치들 (빈 오브젝트들을 연결)")]
     [SerializeField] private Transform[] spawnPoints; // 여러 개의 스폰 위치
+
+    [Header("대화 설정")]
+    [SerializeField] private GameObject dialoguePanel; // 대화창 UI 패널
+    [SerializeField] private TextMeshProUGUI dialogueText; // 대화 내용 텍스트
+    [SerializeField, TextArea(3, 5)] private string[] entryDialogue; // 스테이지 입장 시 대화
+    [SerializeField, TextArea(3, 5)] private string[] clamSpawnDialogue; // 조개 몬스터 스폰 시 대화
+
+    private PlayerController playerController; // 플레이어 이동 제어용
 
     private int seaMonsterKills = 0; // 현재까지 처치한 SeaMonster 수
     private bool clamSpawnEventTriggered = false; // 스폰 이벤트가 한 번만 발생하도록
@@ -41,6 +51,16 @@ public class Stage3Manager : MonoBehaviour
             Debug.LogError("씬에 'Player' 태그를 가진 오브젝트가 없습니다!");
             return;
         }
+        playerController = player.GetComponent<PlayerController>(); // 플레이어 컨트롤러 참조 저장
+        if (dialoguePanel != null && dialogueText != null && entryDialogue.Length > 0)
+        {
+            StartCoroutine(ShowStageEntryDialogue());
+        }
+        else
+        {
+            // 대화가 없으면 바로 시스템 활성화
+            ActivateStage3Systems(player);
+        }
 
         // --- PlayerSwimming 활성화 ---
         swimmingLogic = player.GetComponent<PlayerSwimming>();
@@ -61,22 +81,90 @@ public class Stage3Manager : MonoBehaviour
         }
         // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
     }
+    private IEnumerator ShowStageEntryDialogue()
+    {
+        // 대화 시작 전에 게임 일시정지 및 플레이어 이동 불가
+        Time.timeScale = 0f;
+        if (playerController != null) playerController.canMove = false;
+
+        dialoguePanel.SetActive(true);
+        foreach (var line in entryDialogue)
+        {
+            dialogueText.text = line;
+            // W 키 또는 마우스 클릭 대기 (Time.timeScale이 0일 때도 Input은 작동)
+            yield return new WaitUntil(() => Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.W));
+            yield return null; // 한 프레임 더 대기하여 입력 중복 방지
+        }
+        dialoguePanel.SetActive(false);
+
+        // 대화 종료 후 게임 재개 및 플레이어 이동 가능
+        if (playerController != null) playerController.canMove = true;
+        Time.timeScale = 1f;
+
+        // 대화가 끝나면 Stage3 시스템 활성화
+        ActivateStage3Systems(playerController.gameObject); // playerController에서 player 오브젝트 다시 얻기
+    }
+    private void ActivateStage3Systems(GameObject player)
+    {
+        // 이 함수는 Start에서 직접 호출되거나, 입장 대화 코루틴 마지막에 호출됩니다.
+        swimmingLogic = player.GetComponent<PlayerSwimming>();
+        if (swimmingLogic != null) swimmingLogic.enabled = true;
+
+        oxygenLogic = player.GetComponent<PlayerOxygen>();
+        if (oxygenLogic != null) oxygenLogic.enabled = true;
+
+        Debug.Log("Stage3 시스템 (Swimming, Oxygen) 활성화 완료.");
+    }
 
     public void ReportSeaMonsterDeath()
     {
-        // 이미 스폰 이벤트가 발생했다면 더 이상 카운트하지 않음
         if (clamSpawnEventTriggered) return;
 
         seaMonsterKills++;
         Debug.Log($"SeaMonster 처치! ({seaMonsterKills}/{seaMonsterKillRequirement})");
 
-        // 목표 처치 수를 달성했다면
         if (seaMonsterKills >= seaMonsterKillRequirement)
         {
-            clamSpawnEventTriggered = true; // 스폰 이벤트 발생 스위치 켜기
-            Debug.Log("목표 달성! ClamMonster 웨이브를 시작합니다.");
-            SpawnClamWave(); // 아래의 스폰 함수 호출
+            clamSpawnEventTriggered = true;
+            Debug.Log("목표 달성! ClamMonster 스폰 이벤트를 시작합니다.");
+
+            // --- ▼▼▼▼▼ 수정된 부분 (스폰 전 대화 코루틴 시작) ▼▼▼▼▼ ---
+            // 스폰 함수를 직접 호출하는 대신, 대화 코루틴을 시작합니다.
+            if (dialoguePanel != null && dialogueText != null && clamSpawnDialogue.Length > 0)
+            {
+                StartCoroutine(ShowClamSpawnDialogue());
+            }
+            else
+            {
+                // 대화 내용이 없으면 바로 스폰
+                SpawnClamWave();
+            }
+            // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
         }
+    }
+    private IEnumerator ShowClamSpawnDialogue()
+    {
+        // 대화 시작 전에 게임 일시정지 및 플레이어 이동 불가
+        Time.timeScale = 0f;
+        // playerController 참조가 없을 수 있으므로 다시 찾아줍니다. (안전 장치)
+        if (playerController == null) playerController = FindObjectOfType<PlayerController>();
+        if (playerController != null) playerController.canMove = false;
+
+        dialoguePanel.SetActive(true);
+        foreach (var line in clamSpawnDialogue)
+        {
+            dialogueText.text = line;
+            yield return new WaitUntil(() => Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.W));
+            yield return null;
+        }
+        dialoguePanel.SetActive(false);
+
+        // 대화 종료 후 게임 재개 및 플레이어 이동 가능
+        if (playerController != null) playerController.canMove = true;
+        Time.timeScale = 1f;
+
+        // 대화가 끝나면 조개 몬스터 스폰
+        SpawnClamWave();
     }
 
     // [Private 함수] 지정된 모든 위치에 ClamMonster를 스폰
