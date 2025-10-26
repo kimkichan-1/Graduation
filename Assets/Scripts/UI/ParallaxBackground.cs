@@ -43,6 +43,10 @@ public class ParallaxBackground : MonoBehaviour
         // 5. 최종적으로 카메라를 찾았다면, 초기 위치를 설정합니다.
         if (cameraTransform != null)
         {
+            // --- ▼▼▼▼▼ 이 줄을 추가하세요 ▼▼▼▼▼ ---
+            // 배경의 X축 위치를 즉시 카메라의 X축 위치로 설정합니다.
+            transform.position = new Vector3(cameraTransform.position.x, transform.position.y, transform.position.z);
+            // --- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ ---
             lastCameraPosition = new Vector3(Mathf.Clamp(cameraTransform.position.x, minX, maxX), cameraTransform.position.y, cameraTransform.position.z);
 
             if (infiniteScroll && textureUnitSizeX == 0)

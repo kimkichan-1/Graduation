@@ -1518,9 +1518,9 @@ MonoBehaviour:
   playerClashPosition: {fileID: 36746216}
   bossClashPosition: {fileID: 917482011}
   mainCameraController: {fileID: 0}
-  diceAnimationManager: {fileID: 961431065}
   victoryText: {fileID: 1788813647}
   nextStageName: Stage2
+  knockbackPower: 0.1
 --- !u!1 &580837914
 GameObject:
   m_ObjectHideFlags: 0
@@ -1546,7 +1546,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 580837914}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 93d47e53ebb0b5c49921b4c4b2d8e915, type: 3}
   m_Name: 
@@ -2015,7 +2015,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 625113145}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 93d47e53ebb0b5c49921b4c4b2d8e915, type: 3}
   m_Name: 
@@ -2121,7 +2121,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 664011791}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 93d47e53ebb0b5c49921b4c4b2d8e915, type: 3}
   m_Name: 
@@ -3453,6 +3453,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0b1ceac69f9f37841afe6ec1eb38cfc8, type: 2}
   - {fileID: 11400000, guid: 4065c0627ea5f4b4facf8dc23577a3bf, type: 2}
   - {fileID: 11400000, guid: 16e982b29bcd1f64abc14abf0c01b060, type: 2}
+  cardCollection: []
   revealedCards: []
 --- !u!61 &1066848026
 BoxCollider2D:
@@ -5116,7 +5117,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1673609778}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 93d47e53ebb0b5c49921b4c4b2d8e915, type: 3}
   m_Name: 
