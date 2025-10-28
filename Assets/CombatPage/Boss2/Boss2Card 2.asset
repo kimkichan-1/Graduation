@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9425d028eb4e7e0488b40e36a2972b0b, type: 3}
-  m_Name: Boss2Card0 1
+  m_Name: Boss2Card 2
   m_EditorClassIdentifier: 
-  pageName: Defense
-  lightCost: 0
+  pageName: Crow
+  lightCost: 1
   diceList:
-  - type: 1
+  - type: 0
     minValue: 4
-    maxValue: 5
+    maxValue: 7

@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9425d028eb4e7e0488b40e36a2972b0b, type: 3}
-  m_Name: Boss2Card0 7
+  m_Name: Boss2Card 5
   m_EditorClassIdentifier: 
-  pageName: Dark
-  lightCost: 3
+  pageName: Arrows
+  lightCost: 2
   diceList:
   - type: 0
-    minValue: 12
-    maxValue: 15
+    minValue: 9
+    maxValue: 12

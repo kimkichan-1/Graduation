@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9425d028eb4e7e0488b40e36a2972b0b, type: 3}
-  m_Name: Boss2Card0 5
+  m_Name: Boss2Card 6
   m_EditorClassIdentifier: 
-  pageName: Arrows
+  pageName: Barrier
   lightCost: 2
   diceList:
-  - type: 0
-    minValue: 9
-    maxValue: 12
+  - type: 1
+    minValue: 10
+    maxValue: 10

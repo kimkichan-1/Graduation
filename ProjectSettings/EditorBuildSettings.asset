@@ -47,5 +47,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/DeathScene.unity
     guid: 8528f30cbd4b2164aa8cfa571f44070d
+  - enabled: 1
+    path: Assets/ClearScene.unity
+    guid: 3d679787e0ac0ad44b9f344deb6a519f
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
