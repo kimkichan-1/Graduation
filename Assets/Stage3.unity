@@ -6465,7 +6465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0e6dc4b3c616d6419b4a5c7a777845c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seaMonsterKillRequirement: 2
+  seaMonsterKillRequirement: 30
   clamMonsterPrefab: {fileID: 2603111409971846006, guid: 666e339aacdb73f4e81e4eea2a630715, type: 3}
   spawnPoints:
   - {fileID: 1060697156}
@@ -7079,7 +7079,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 12
+  maxMonsters: 6
   spawnInterval: 8
   spawnYPosition: 20.5
   spawnXRangeMin: -93
@@ -15352,7 +15352,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 5
+  maxMonsters: 3
   spawnInterval: 8
   spawnYPosition: -6.2
   spawnXRangeMin: 38
@@ -27269,7 +27269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 8
+  maxMonsters: 6
   spawnInterval: 8
   spawnYPosition: 31.2
   spawnXRangeMin: 35
@@ -27944,7 +27944,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 10
+  maxMonsters: 7
   spawnInterval: 8
   spawnYPosition: -23
   spawnXRangeMin: -75
@@ -28262,7 +28262,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 18
+  maxMonsters: 10
   spawnInterval: 8
   spawnYPosition: -40.3
   spawnXRangeMin: -23
@@ -30200,7 +30200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 5
+  maxMonsters: 4
   spawnInterval: 8
   spawnYPosition: 5.8
   spawnXRangeMin: 7
@@ -30399,7 +30399,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 12
+  maxMonsters: 8
   spawnInterval: 10
   spawnYPosition: -69
   spawnXRangeMin: -45
@@ -36039,7 +36039,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 12
+  maxMonsters: 6
   spawnInterval: 8
   spawnYPosition: -55
   spawnXRangeMin: -80
@@ -36574,7 +36574,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 12
+  maxMonsters: 7
   spawnInterval: 8
   spawnYPosition: -71
   spawnXRangeMin: 22
@@ -38808,6 +38808,7 @@ GameObject:
   - component: {fileID: 2075207843}
   - component: {fileID: 2075207845}
   - component: {fileID: 2075207846}
+  - component: {fileID: 2075207847}
   m_Layer: 0
   m_Name: Portal
   m_TagString: Untagged
@@ -38825,7 +38826,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.05, y: -0.14, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
+  m_LocalScale: {x: 1, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1759431041}
@@ -38938,11 +38939,24 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2075207841}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bcd89edd983c8e24392f87fa2a3fdb90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2075207847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2075207841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78a6c8e2c9967e2488784994a288d131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nextStageName: Shop 3
 --- !u!1 &2078852179
 GameObject:
   m_ObjectHideFlags: 0
@@ -38988,7 +39002,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterPrefab: {fileID: 2702869483234219603, guid: 8eea7740aa3fed14e811b14a11fb203d, type: 3}
-  maxMonsters: 12
+  maxMonsters: 6
   spawnInterval: 8
   spawnYPosition: 15.3
   spawnXRangeMin: -88

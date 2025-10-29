@@ -9,6 +9,9 @@ public class DeathSceneManager : MonoBehaviour
         // 1. (★수정됨★) 멈췄던 시간을 1f (정상 속도)로 되돌립니다.
         Time.timeScale = 1f;
 
+        PlayerStats.ResetStaticVariables();
+        BossGameManager.ResetStaticVariables();
+
         if (GameManager.Instance != null && SaveManager.Instance != null)
         {
             // 'GameManager'로부터 현재 플레이 중인 슬롯 번호를 가져옵니다.

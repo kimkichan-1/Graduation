@@ -214,4 +214,12 @@ public class PlayerStats : MonoBehaviour
             Time.timeScale = 1f; // 게임 재개
         }
     }
+    /// <summary>
+    /// 메인 메뉴로 돌아갈 때 모든 static 변수를 초기화합니다.
+    /// </summary>
+    public static void ResetStaticVariables()
+    {
+        isLevelUpPending = false;
+        Debug.Log("PlayerStats static 변수 리셋 완료.");
+    }
 }

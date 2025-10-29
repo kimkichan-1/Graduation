@@ -5196,7 +5196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78a6c8e2c9967e2488784994a288d131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nextStageName: Boss2
+  nextStageName: Shop 2
 --- !u!61 &311896620
 BoxCollider2D:
   m_ObjectHideFlags: 0

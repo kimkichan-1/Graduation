@@ -7,6 +7,8 @@ public class ClearSceneManager : MonoBehaviour
     // "To Main" 버튼 클릭 시 호출될 함수
     public void GoToMainMenu()
     {
+        PlayerStats.ResetStaticVariables();
+        BossGameManager.ResetStaticVariables();
         // 1. (동일) 멈췄던 시간을 1f (정상 속도)로 되돌립니다.
         Time.timeScale = 1f;
 
