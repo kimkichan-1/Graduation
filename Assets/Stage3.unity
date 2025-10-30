@@ -6465,7 +6465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0e6dc4b3c616d6419b4a5c7a777845c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seaMonsterKillRequirement: 30
+  seaMonsterKillRequirement: 15
   clamMonsterPrefab: {fileID: 2603111409971846006, guid: 666e339aacdb73f4e81e4eea2a630715, type: 3}
   spawnPoints:
   - {fileID: 1060697156}

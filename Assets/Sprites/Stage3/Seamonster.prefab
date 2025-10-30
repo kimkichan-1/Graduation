@@ -269,7 +269,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.5, y: 1}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &2336442248383010111
 MonoBehaviour:
@@ -288,7 +288,7 @@ MonoBehaviour:
   maxMoveDuration: 3
   minPauseDuration: 0.5
   maxPauseDuration: 2
-  detectionSize: {x: 10, y: 10}
+  detectionSize: {x: 10, y: 5}
   detectionOffset: {x: 0, y: 0}
   attackSize: {x: 2, y: 2}
   attackOffset: {x: 0, y: 0}
