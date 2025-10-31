@@ -1518,6 +1518,7 @@ MonoBehaviour:
   playerClashPosition: {fileID: 36746216}
   bossClashPosition: {fileID: 917482011}
   mainCameraController: {fileID: 0}
+  diceAnimationManager: {fileID: 961431065}
   victoryText: {fileID: 1788813647}
   nextStageName: Stage2
   knockbackPower: 0.1

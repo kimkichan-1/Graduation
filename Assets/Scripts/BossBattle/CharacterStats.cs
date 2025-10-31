@@ -48,6 +48,8 @@ public class CharacterStats : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         playerStats = GetComponent<PlayerStats>();
         
+        // ▼▼▼ [수정] 이 루프를 삭제하거나 주석 처리합니다. ▼▼▼
+        /*
         foreach (var page in deck)
         {
             if (!cardCooldowns.ContainsKey(page))
@@ -55,6 +57,8 @@ public class CharacterStats : MonoBehaviour
                 cardCooldowns.Add(page, 0);
             }
         }
+        */
+        // ▲▲▲
     }
 
     public void InitializeFromPlayerScripts()
@@ -144,10 +148,16 @@ public class CharacterStats : MonoBehaviour
 
     public void SetCardCooldown(CombatPage page)
     {
-        if (cardCooldowns.ContainsKey(page))
+        // ▼▼▼ [수정] 딕셔너리에 키가 있는지 먼저 확인합니다. ▼▼▼
+        if (page == null) return;
+        if (!cardCooldowns.ContainsKey(page))
         {
-            cardCooldowns[page] = page.lightCost;
+            cardCooldowns.Add(page, 0);
         }
+        // ▲▲▲
+        
+        cardCooldowns[page] = page.lightCost;
+        
         if (!revealedCards.Contains(page))
         {
             revealedCards.Add(page);
@@ -156,6 +166,22 @@ public class CharacterStats : MonoBehaviour
 
     public bool IsCardUsable(CombatPage page)
     {
-        return cardCooldowns.ContainsKey(page) && cardCooldowns[page] == 0;
+        // ▼▼▼ [수정] 딕셔너리에 키가 있는지 먼저 확인합니다. ▼▼▼
+        if (page == null) return false;
+        if (!cardCooldowns.ContainsKey(page))
+        {
+            // 이 카드는 덱에 있지만 아직 딕셔너리에 없음 -> 지금 추가
+            cardCooldowns.Add(page, 0); 
+        }
+        // ▲▲▲
+        
+        return cardCooldowns[page] == 0;
+    }
+
+    public void AddCardToCollection(CombatPage newCard)
+    {
+        if (newCard == null) return;
+        cardCollection.Add(newCard);
+        Debug.Log($"[CharacterStats] 카드 획득: {newCard.pageName}");
     }
 }

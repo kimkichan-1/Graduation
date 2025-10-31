@@ -136,11 +136,11 @@ public class DiceAnimationManager : MonoBehaviour
                     StartCoroutine(bossDiceVisuals[diceIndexB].AnimateLose());
                 }
 
-                // 데미지 처리 (ClashManager와 동일한 로직)
+                // 데미지 처리
                 yield return StartCoroutine(ApplyClashDamage(
                     playerStats, diceA, rollA, bossStats, diceB, rollB));
-
-                diceIndexB++; // 진 쪽(B)의 주사위만 파괴
+                
+                // [수정됨] diceIndexB++ 삭제
             }
             else if (rollB > rollA)
             {
@@ -153,11 +153,11 @@ public class DiceAnimationManager : MonoBehaviour
                     StartCoroutine(bossDiceVisuals[diceIndexB].AnimateWin());
                 }
 
-                // 데미지 처리 (ClashManager와 동일한 로직)
+                // 데미지 처리
                 yield return StartCoroutine(ApplyClashDamage(
                     bossStats, diceB, rollB, playerStats, diceA, rollA));
-
-                diceIndexA++; // 진 쪽(A)의 주사위만 파괴
+                
+                // [수정됨] diceIndexA++ 삭제
             }
             else
             {
@@ -170,9 +170,13 @@ public class DiceAnimationManager : MonoBehaviour
                     StartCoroutine(bossDiceVisuals[diceIndexB].AnimateDraw());
                 }
 
-                diceIndexA++;
-                diceIndexB++;
+                // [수정됨] diceIndexA++, diceIndexB++ 삭제
             }
+
+            // ▼▼▼ [수정됨] 합을 한 번 진행한 주사위는 모두 사용된 것으로 처리 ▼▼▼
+            diceIndexA++;
+            diceIndexB++;
+            // ▲▲▲
 
             yield return new WaitForSeconds(delayAfterClash);
         }
@@ -236,7 +240,7 @@ public class DiceAnimationManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 합(Clash) 데미지 적용 - ClashManager와 동일한 로직
+    /// 합(Clash) 데미지 적용 - ClashManager의 로직 호출
     /// </summary>
     private IEnumerator ApplyClashDamage(
         CharacterStats winner, CombatDice winnerDice, int winnerRoll,
@@ -245,27 +249,18 @@ public class DiceAnimationManager : MonoBehaviour
         switch (winnerDice.type)
         {
             case DiceType.Attack:
-                int grossDamage = (winner.attackPower + winnerRoll) - loser.defensePower;
-                if (loserDice.type == DiceType.Defense)
-                {
-                    int finalDamage = Mathf.Max(1, grossDamage - loserRoll);
-                    Debug.Log($"{loser.characterName}의 방어력({loser.defensePower})과 수비 주사위({loserRoll})로 피해 경감! 최종 피해: {finalDamage}");
+                int finalDamage = ClashManager.CalculateAttackDamage(
+                    winner, winnerRoll, loser, loserDice, loserRoll);
+                
+                Debug.Log($"{loser.characterName}의 방어력/수비로 피해 경감! 최종 피해: {finalDamage}");
 
-                    if (damageSound != null) audioSource.PlayOneShot(damageSound);
-                    loser.TakeDamage(finalDamage);
-                }
-                else
-                {
-                    int finalDamage = Mathf.Max(1, grossDamage);
-                    Debug.Log($"{loser.characterName}의 방어력({loser.defensePower})으로 피해 경감! 최종 피해: {finalDamage}");
-
-                    if (damageSound != null) audioSource.PlayOneShot(damageSound);
-                    loser.TakeDamage(finalDamage);
-                }
+                if (damageSound != null) audioSource.PlayOneShot(damageSound);
+                loser.TakeDamage(finalDamage);
                 break;
 
             case DiceType.Defense:
-                int counterDamage = winnerRoll - loserRoll;
+                int counterDamage = ClashManager.CalculateCounterDamage(winnerRoll, loserRoll);
+
                 Debug.Log($"{winner.characterName}의 수비 성공! {loser.characterName}에게 {counterDamage}의 반격 피해를 줍니다.");
 
                 if (damageSound != null) audioSource.PlayOneShot(damageSound);
@@ -277,7 +272,7 @@ public class DiceAnimationManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 일방 공격 애니메이션 - ClashManager와 동일한 로직
+    /// 일방 공격 애니메이션 - ClashManager의 로직 호출
     /// </summary>
     private IEnumerator AnimateOneSidedAttack(
         DiceVisual diceVisual, CombatDice dice,
@@ -292,7 +287,9 @@ public class DiceAnimationManager : MonoBehaviour
 
         if (dice.type == DiceType.Attack)
         {
-            int finalDamage = Mathf.Max(1, (attacker.attackPower + roll) - target.defensePower);
+            int finalDamage = ClashManager.CalculateOneSidedAttackDamage(
+                attacker, roll, target);
+            
             Debug.Log($"최종 피해: {finalDamage}");
 
             if (damageSound != null)

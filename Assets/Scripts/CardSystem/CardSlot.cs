@@ -7,24 +7,48 @@ public class CardSlot : MonoBehaviour, IDropHandler
     public CombatPage cardToDisplay;
     
     [Header("생성할 카드 프리팹")]
-    public GameObject cardPrefab;
+    public GameObject cardPrefab; // (DraggableCard 프리팹)
 
     void Start()
     {
-        // 게임이 시작될 때, 이 슬롯에 표시할 카드가 지정되어 있다면 카드 UI를 생성합니다.
+        // 게임이 시작될 때, 인스펙터에 설정된 카드가 있다면 즉시 생성합니다.
+        SetCard(cardToDisplay); 
+    }
+
+    /// <summary>
+    /// 이 슬롯에 특정 카드를 표시하거나, null을 전달받아 비웁니다.
+    /// (CardInventoryUI가 이 함수를 호출할 것입니다)
+    /// </summary>
+    public void SetCard(CombatPage cardData)
+    {
+        // 1. 기존에 슬롯에 있던 카드 UI (DraggableCard)를 모두 삭제합니다.
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // 2. 이 슬롯이 표시할 카드 데이터를 새로 설정합니다.
+        this.cardToDisplay = cardData;
+
+        // 3. 새로 받은 cardData가 null이 아니고 프리팹이 설정되어 있다면,
+        //    카드 UI를 생성합니다.
         if (cardToDisplay != null && cardPrefab != null)
         {
-            // 이 슬롯의 자식으로 카드 프리팹을 생성합니다.
-            GameObject cardObject = Instantiate(cardPrefab, transform);
+            // ▼▼▼ [수정됨] UI를 생성할 때는 이 방식이 더 안정적입니다 ▼▼▼
+            GameObject cardObject = Instantiate(cardPrefab);
+            cardObject.transform.SetParent(this.transform, false); // 'false'가 중요!
+            // ▲▲▲
 
             // 생성된 카드 UI에 카드 데이터를 전달합니다.
             DraggableCard draggableCard = cardObject.GetComponent<DraggableCard>();
             if (draggableCard != null)
             {
                 draggableCard.SetCardData(cardToDisplay);
+                draggableCard.parentToReturnTo = this.transform; // 드래그용 초기화
             }
         }
     }
+
 
     // 다른 카드가 이 슬롯에 드롭되었을 때 호출됩니다.
     public void OnDrop(PointerEventData eventData)

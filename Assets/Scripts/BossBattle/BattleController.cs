@@ -29,6 +29,10 @@ public class BattleController : MonoBehaviour
 
     [Header("카메라 컨트롤러")]
     public CameraController mainCameraController;
+    
+    // ▼▼▼ [수정] 연출 매니저 변수 추가 ▼▼▼
+    [Header("연출 매니저")]
+    public DiceAnimationManager diceAnimationManager; 
 
     [Header("승리 연출")]
     public TextMeshProUGUI victoryText;
@@ -133,13 +137,38 @@ public class BattleController : MonoBehaviour
             CombatPage playerPage = playerActionQueueUI[i].assignedPage;
             CombatPage bossPage = bossActionQueue[i];
 
-            // ClashManager는 데미지 계산과 TakeDamage 호출만 담당 (넉백 로직은 CharacterStats가 처리)
-            ClashManager.ResolveClash(player, playerPage, boss, bossPage);
+            // ▼▼▼ [수정] ClashManager 대신 DiceAnimationManager를 호출 ▼▼▼
+            if (diceAnimationManager != null)
+            {
+                // 1. 주사위 UI 생성
+                diceAnimationManager.SetupDiceVisuals(playerPage, bossPage);
 
-            yield return new WaitForSeconds(1.0f); // 데미지 및 넉백 연출 기다리는 시간
+                // 2. 애니메이션 및 데미지 계산 코루틴 실행 (끝날 때까지 대기)
+                yield return StartCoroutine(diceAnimationManager.AnimateClashSequence(
+                    player, playerPage,
+                    boss, bossPage
+                ));
+            }
+            else
+            {
+                // (혹시 연결 안 했을 경우 대비) 기존 로직 실행
+                Debug.LogWarning("DiceAnimationManager가 연결되지 않아 즉시 계산합니다.");
+                ClashManager.ResolveClash(player, playerPage, boss, bossPage);
+            }
+            // ▲▲▲ 수정 완료 ▲▲▲
+
+
+            // [수정] DiceAnimationManager가 이미 대기하므로 추가 대기 시간(1.0f) 제거
+            // yield return new WaitForSeconds(1.0f); 
 
             if (player.currentHp <= 0 || boss.currentHp <= 0)
             {
+                // 주사위 연출 중 캐릭터가 죽었다면, 남은 주사위 연출을 취소하기 위해
+                // DiceAnimationManager의 주사위 비주얼을 즉시 정리합니다.
+                if (diceAnimationManager != null)
+                {
+                    diceAnimationManager.ClearDiceVisuals();
+                }
                 break;
             }
         }
@@ -261,10 +290,12 @@ public class BattleController : MonoBehaviour
         if (player != null && boss != null && boss.deck != null)
         {
             Debug.Log("보스의 덱 카드를 획득합니다...");
+            
             foreach (CombatPage card in boss.deck)
             {
-                //player.AddCardToCollection(card);
+                player.AddCardToCollection(card);
             }
+            Debug.Log($"[BattleController] 총 {boss.deck.Count}개의 카드를 획득했습니다. (현재 총 소유 카드: {player.cardCollection.Count}개)");
         }
 
         if (boss != null)

@@ -43,7 +43,9 @@ public class CardInventoryUI : MonoBehaviour
             cardInventoryPanel.SetActive(true);
         }
 
-        // UI를 업데이트하는 대신, 이미 슬롯들이 스스로 카드를 띄웠으므로 시간을 멈추기만 합니다.
+        // ▼▼▼ [핵심] UI를 여는 시점에 데이터를 로드하는 함수 호출 ▼▼▼
+        UpdateUIFromCharacterStats(); 
+
         Time.timeScale = 0f;
         GameObject pearlGroup = GameObject.Find("PearlUI_Group");
         if (pearlGroup != null)
@@ -76,10 +78,6 @@ public class CardInventoryUI : MonoBehaviour
                 // 찾았다면 다시 활성화합니다.
                 pearlGroup.SetActive(true);
                 Debug.Log("PearlUI_Group 다시 활성화 (Stage3).");
-
-                // (선택사항) PearlDisplayUI 스크립트가 있다면 UI 강제 업데이트
-                // PearlDisplayUI displayScript = pearlGroup.GetComponentInChildren<PearlDisplayUI>(); // 자식에서 찾거나 직접 찾기
-                // if(displayScript != null) displayScript.UpdatePearlUI();
             }
             // Stage3인데도 못 찾으면 경고 (오브젝트 이름이 다르거나 없을 경우)
             else
@@ -122,5 +120,75 @@ public class CardInventoryUI : MonoBehaviour
             }
         }
         return cards;
+    }
+
+    // ▼▼▼ [핵심] 이 함수가 새로 추가되었습니다 ▼▼▼
+    /// <summary>
+    /// CharacterStats의 데이터를 기반으로 덱/컬렉션 UI를 다시 그립니다.
+    /// (각 슬롯의 SetCard 함수를 호출)
+    /// </summary>
+    public void UpdateUIFromCharacterStats()
+    {
+        if (playerCharacterStats == null)
+        {
+            Debug.LogError("PlayerCharacterStats가 없습니다!");
+            return;
+        }
+
+        // 1. 모든 덱 슬롯과 컬렉션 슬롯을 가져옵니다.
+        CardSlot[] deckSlots = deckContentPanel.GetComponentsInChildren<CardSlot>();
+        CardSlot[] collectionSlots = collectionContentPanel.GetComponentsInChildren<CardSlot>();
+
+        // 2. [덱 패널] playerCharacterStats.deck 리스트를 기반으로 덱 슬롯을 채웁니다.
+        List<CombatPage> deck = playerCharacterStats.deck;
+        for (int i = 0; i < deckSlots.Length; i++)
+        {
+            if (i < deck.Count)
+            {
+                // 덱 카드 리스트에 카드가 있으면 슬롯에 설정
+                deckSlots[i].SetCard(deck[i]);
+            }
+            else
+            {
+                // 덱 카드보다 슬롯이 많으면 남는 슬롯은 비움
+                deckSlots[i].SetCard(null); 
+            }
+        }
+
+        // 3. [컬렉션 패널] 덱에 포함되지 않은 카드들만 추려냅니다.
+        List<CombatPage> cardsInDeck = new List<CombatPage>(playerCharacterStats.deck);
+        List<CombatPage> cardsForCollectionPanel = new List<CombatPage>();
+
+        foreach (CombatPage cardInCollection in playerCharacterStats.cardCollection)
+        {
+            // 덱 리스트에서 이 카드(와 동일한 참조)를 찾습니다.
+            CombatPage match = cardsInDeck.FirstOrDefault(c => c == cardInCollection);
+            
+            if (match != null)
+            {
+                // 덱에 있는 카드입니다. 덱 리스트에서 하나 제거합니다 (중복 처리를 위해).
+                cardsInDeck.Remove(match);
+            }
+            else
+            {
+                // 덱에 없는 카드(매칭되는 인스턴스가 없는)이므로 컬렉션 패널에 추가합니다.
+                cardsForCollectionPanel.Add(cardInCollection);
+            }
+        }
+
+        // 4. [컬렉션 패널] 추려낸 카드들을 컬렉션 슬롯에 채웁니다.
+        for (int i = 0; i < collectionSlots.Length; i++)
+        {
+            if (i < cardsForCollectionPanel.Count)
+            {
+                // 컬렉션 카드 리스트에 카드가 있으면 슬롯에 설정
+                collectionSlots[i].SetCard(cardsForCollectionPanel[i]);
+            }
+            else
+            {
+                // 컬렉션 카드보다 슬롯이 많으면 남는 슬롯은 비움
+                collectionSlots[i].SetCard(null); 
+            }
+        }
     }
 }
