@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -168,13 +169,52 @@ public class GameManager : MonoBehaviour
         data.positionY = positionToSave.y;
         data.positionZ = positionToSave.z;
 
-        // 인벤토리 (간단 버전 - 추후 확장 가능)
+        // 인벤토리 - 포션 저장
         if (Inventory.instance != null)
         {
-            data.inventoryItems.Clear();
+            data.potionInventory.Clear();
+
+            // 인벤토리의 각 아이템을 확인하여 포션만 저장
             foreach (var item in Inventory.instance.items)
             {
-                data.inventoryItems.Add(item.itemName);
+                if (item is PotionItemData potionData)
+                {
+                    // 이미 저장된 포션이 있는지 확인 (같은 포션 여러 개 합치기)
+                    PotionSaveData existingSave = data.potionInventory.Find(p => p.potionName == potionData.itemName);
+                    if (existingSave != null)
+                    {
+                        existingSave.quantity++;
+                    }
+                    else
+                    {
+                        data.potionInventory.Add(new PotionSaveData(potionData.itemName, 1));
+                    }
+                }
+            }
+        }
+
+        // 카드 시스템 - 덱과 컬렉션 저장
+        CharacterStats characterStats = player.GetComponent<CharacterStats>();
+        if (characterStats != null)
+        {
+            // 덱 저장
+            data.cardDeck.Clear();
+            foreach (var card in characterStats.deck)
+            {
+                if (card != null)
+                {
+                    data.cardDeck.Add(new CardSaveData(card));
+                }
+            }
+
+            // 전체 카드 컬렉션 저장
+            data.cardCollection.Clear();
+            foreach (var card in characterStats.cardCollection)
+            {
+                if (card != null)
+                {
+                    data.cardCollection.Add(new CardSaveData(card));
+                }
             }
         }
 
@@ -445,6 +485,92 @@ public class GameManager : MonoBehaviour
         );
 
         Debug.Log($"[LoadGame] 플레이어 위치 설정: ({tempLoadData.positionX}, {tempLoadData.positionY}, {tempLoadData.positionZ})");
+
+        // 인벤토리 복원 - 포션 아이템
+        if (Inventory.instance != null && tempLoadData.potionInventory.Count > 0)
+        {
+            Inventory.instance.items.Clear();
+
+            foreach (var potionSave in tempLoadData.potionInventory)
+            {
+                // Resources 폴더에서 포션 데이터 찾기
+                PotionItemData[] allPotions = Resources.LoadAll<PotionItemData>("Potions");
+                PotionItemData potionData = System.Array.Find(allPotions, p => p.itemName == potionSave.potionName);
+
+                if (potionData != null)
+                {
+                    // 수량만큼 인벤토리에 추가
+                    for (int i = 0; i < potionSave.quantity; i++)
+                    {
+                        Inventory.instance.Add(potionData);
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[LoadGame] 포션을 찾을 수 없습니다: {potionSave.potionName}");
+                }
+            }
+
+            Debug.Log($"[LoadGame] 인벤토리 복원 완료: {tempLoadData.potionInventory.Count}종류의 포션");
+        }
+
+        // 카드 덱 및 컬렉션 복원
+        CharacterStats characterStats = player.GetComponent<CharacterStats>();
+        if (characterStats != null && (tempLoadData.cardDeck.Count > 0 || tempLoadData.cardCollection.Count > 0))
+        {
+            // 기존 카드들을 일러스트 이름으로 매핑 (일러스트 보존용)
+            Dictionary<string, Sprite> artworkCache = new Dictionary<string, Sprite>();
+
+            // 기존 덱에서 일러스트 수집
+            foreach (var card in characterStats.deck)
+            {
+                if (card != null && card.artwork != null && !artworkCache.ContainsKey(card.artwork.name))
+                {
+                    artworkCache[card.artwork.name] = card.artwork;
+                }
+            }
+
+            // 기존 컬렉션에서 일러스트 수집
+            foreach (var card in characterStats.cardCollection)
+            {
+                if (card != null && card.artwork != null && !artworkCache.ContainsKey(card.artwork.name))
+                {
+                    artworkCache[card.artwork.name] = card.artwork;
+                }
+            }
+
+            // 덱 복원
+            characterStats.deck.Clear();
+            foreach (var cardSave in tempLoadData.cardDeck)
+            {
+                CombatPage card = cardSave.ToCombatPage();
+
+                // 저장된 일러스트 이름으로 캐시에서 찾아서 복원
+                if (!string.IsNullOrEmpty(cardSave.artworkResourcePath) && artworkCache.ContainsKey(cardSave.artworkResourcePath))
+                {
+                    card.artwork = artworkCache[cardSave.artworkResourcePath];
+                }
+
+                characterStats.deck.Add(card);
+            }
+
+            // 카드 컬렉션 복원
+            characterStats.cardCollection.Clear();
+            foreach (var cardSave in tempLoadData.cardCollection)
+            {
+                CombatPage card = cardSave.ToCombatPage();
+
+                // 저장된 일러스트 이름으로 캐시에서 찾아서 복원
+                if (!string.IsNullOrEmpty(cardSave.artworkResourcePath) && artworkCache.ContainsKey(cardSave.artworkResourcePath))
+                {
+                    card.artwork = artworkCache[cardSave.artworkResourcePath];
+                }
+
+                characterStats.cardCollection.Add(card);
+            }
+
+            Debug.Log($"[LoadGame] 카드 복원 완료: 덱 {characterStats.deck.Count}장, 컬렉션 {characterStats.cardCollection.Count}장");
+        }
 
         // 무기는 이미 ApplyDataToPlayerCoroutine()에서 장착됨
         // 여기서는 스탯 재계산만 수행

@@ -59,24 +59,39 @@ public class CardSlot : MonoBehaviour, IDropHandler
         DraggableCard draggableCard = droppedObject.GetComponent<DraggableCard>();
         if (draggableCard == null) return;
 
+        // 드래그한 카드의 원래 부모 슬롯 저장
+        Transform originalParent = draggableCard.parentToReturnTo;
+
         // --- 시각적인 카드 교환 또는 이동 처리 ---
-        // 이 슬롯에 카드가 이미 있다면, 원래 있던 카드를 드롭한 카드의 이전 슬롯으로 보냅니다.
-        if (transform.childCount > 1) // 드롭된 카드가 임시로 자식이 되므로 1보다 큰지 체크
+        // 이 슬롯에 카드가 이미 있는지 확인 (드래그 중인 카드는 제외)
+        DraggableCard existingCard = null;
+        foreach (Transform child in transform)
         {
-            // 0번째 자식이 원래 있던 카드
-            DraggableCard existingCard = transform.GetChild(0).GetComponent<DraggableCard>();
-            if (existingCard != null)
+            if (child.gameObject != droppedObject)
             {
-                existingCard.transform.SetParent(draggableCard.parentToReturnTo);
-                existingCard.transform.localPosition = Vector3.zero;
+                DraggableCard card = child.GetComponent<DraggableCard>();
+                if (card != null)
+                {
+                    existingCard = card;
+                    break;
+                }
             }
+        }
+
+        // 기존 카드가 있으면 위치 교환
+        if (existingCard != null && originalParent != null)
+        {
+            // 기존 카드를 드래그한 카드의 원래 슬롯으로 이동
+            existingCard.transform.SetParent(originalParent);
+            existingCard.transform.localPosition = Vector3.zero;
+            existingCard.parentToReturnTo = originalParent;
         }
 
         // 드롭된 카드를 이 슬롯의 자식으로 설정합니다.
         draggableCard.parentToReturnTo = this.transform;
         draggableCard.transform.SetParent(this.transform);
         draggableCard.transform.localPosition = Vector3.zero;
-        
+
         // --- 시각적인 변경이 끝난 후, CardInventoryUI에게 데이터 저장을 요청 ---
         if (CardInventoryUI.Instance != null)
         {

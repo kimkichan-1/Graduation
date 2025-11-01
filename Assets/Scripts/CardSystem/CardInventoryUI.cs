@@ -98,7 +98,17 @@ public class CardInventoryUI : MonoBehaviour
 
         // 읽어온 정보로 CharacterStats의 데이터를 업데이트합니다.
         playerCharacterStats.deck = newDeck;
-        playerCharacterStats.cardCollection = newDeck.Concat(newCollection).ToList();
+
+        // [수정] 전체 컬렉션 = 덱 + 컬렉션 패널 카드들 (중복 제거)
+        List<CombatPage> totalCollection = new List<CombatPage>(newDeck);
+        foreach (var card in newCollection)
+        {
+            if (!totalCollection.Contains(card))
+            {
+                totalCollection.Add(card);
+            }
+        }
+        playerCharacterStats.cardCollection = totalCollection;
 
         playerCharacterStats.SortDeckByCost();
         Debug.Log("덱이 실시간으로 저장되었습니다!");
