@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8205eb99ad9ae4447a9288877b61ce72, type: 3}
+  m_Name: MaxHealthItem1
+  m_EditorClassIdentifier: 
+  itemName: "\uD558\uAE09 \uCCB4\uB825 \uC99D\uAC00"
+  description: "\uCCB4\uB825\uC774 2 \uC99D\uAC00\uD55C\uB2E4."
+  icon: {fileID: -827664060, guid: 579b2ef9acfa4f148aec2456be299945, type: 3}
+  boostType: 2
+  attackPowerBoost: 0
+  defenseBoost: 0
+  maxHealthBoost: 2
+  moveSpeedBoost: 0
+  useSound: {fileID: 0}
+  useEffectPrefab: {fileID: 0}

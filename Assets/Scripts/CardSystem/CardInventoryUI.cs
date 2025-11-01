@@ -166,22 +166,31 @@ public class CardInventoryUI : MonoBehaviour
         }
 
         // 3. [컬렉션 패널] 덱에 포함되지 않은 카드들만 추려냅니다.
-        List<CombatPage> cardsInDeck = new List<CombatPage>(playerCharacterStats.deck);
+        // 덱 카드들을 HashSet으로 변환 (카드 이름 기준으로 중복 체크)
+        HashSet<string> deckCardNames = new HashSet<string>();
+        foreach (var deckCard in playerCharacterStats.deck)
+        {
+            if (deckCard != null)
+            {
+                deckCardNames.Add(deckCard.pageName);
+            }
+        }
+
         List<CombatPage> cardsForCollectionPanel = new List<CombatPage>();
 
         foreach (CombatPage cardInCollection in playerCharacterStats.cardCollection)
         {
-            // 덱 리스트에서 이 카드(와 동일한 참조)를 찾습니다.
-            CombatPage match = cardsInDeck.FirstOrDefault(c => c == cardInCollection);
-            
-            if (match != null)
+            if (cardInCollection == null) continue;
+
+            // 덱에 이미 같은 이름의 카드가 있는지 확인
+            if (deckCardNames.Contains(cardInCollection.pageName))
             {
-                // 덱에 있는 카드입니다. 덱 리스트에서 하나 제거합니다 (중복 처리를 위해).
-                cardsInDeck.Remove(match);
+                // 덱에 있는 카드이므로 HashSet에서 제거 (한 번만 제거)
+                deckCardNames.Remove(cardInCollection.pageName);
             }
             else
             {
-                // 덱에 없는 카드(매칭되는 인스턴스가 없는)이므로 컬렉션 패널에 추가합니다.
+                // 덱에 없는 카드이므로 컬렉션 패널에 추가
                 cardsForCollectionPanel.Add(cardInCollection);
             }
         }
