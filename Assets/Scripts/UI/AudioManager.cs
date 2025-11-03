@@ -73,19 +73,28 @@ public class AudioManager : MonoBehaviour
     // ★★★ 3. (새 함수) 씬의 '신청서'가 호출할 BGM 재생 함수 ★★★
     public void PlayBGM(AudioClip clipToPlay)
     {
-        // 1. 신청서에 노래가 없거나, 이미 틀고 있는 노래면 무시
-        if (clipToPlay == null || clipToPlay == currentBgmClip)
+        // 1. (★수정됨★) 이미 틀고 있는 노래면 '즉시' 중단
+        // (이게 없으면 같은 노래를 페이드 아웃/인 하는 버그 발생)
+        if (clipToPlay == currentBgmClip)
         {
             return;
         }
 
-        // 2. 이전에 실행 중이던 페이드가 있다면 중지
+        // 2. 신청서에 노래가 없으면 (예: DeathScene)
+        if (clipToPlay == null)
+        {
+            // (선택) 노래를 멈추거나, 그냥 두거나...
+            // 여기서는 그냥 두는 걸로 (return;)
+            return;
+        }
+
+        // 3. 이전에 실행 중이던 페이드가 있다면 중지
         if (fadeCoroutine != null)
         {
             StopCoroutine(fadeCoroutine);
         }
 
-        // 3. 새 노래로 부드럽게 교체하는 코루틴 시작
+        // 4. 새 노래로 부드럽게 교체하는 코루틴 시작
         fadeCoroutine = StartCoroutine(FadeMusic(clipToPlay));
     }
 

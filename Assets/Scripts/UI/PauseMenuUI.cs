@@ -1,227 +1,188 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic; // Queue를 위해 추가
 
 /// <summary>
-/// 일시정지 메뉴 UI 관리
-/// ESC 키로 열고 닫기 가능
+/// 일시정지 메뉴 UI 관리 (업그레이드됨: 3단 패널 전환)
 /// </summary>
 public class PauseMenuUI : MonoBehaviour
 {
     [Header("UI 요소")]
-    [SerializeField] private GameObject pauseMenuPanel;  // 일시정지 메뉴 패널
+    [SerializeField] private GameObject pauseMenuPanel;  // 최상위 갈색 창
 
-    [Header("버튼")]
-    [SerializeField] private Button closeButton;         // 닫기 버튼
-    [SerializeField] private Button settingButton;       // 설정 버튼 (추후 구현)
-    [SerializeField] private Button goMainButton;        // 메인으로 버튼
+    [Header("하위 패널 (서랍)")]
+    [SerializeField] private GameObject mainPausePanel;     // Panel_Main
+    [SerializeField] private GameObject settingsPanel;      // Settings_Panel
+    [SerializeField] private GameObject audioSettingsPanel; // AudioSettings_Panel
+
+    [Header("메인 패널 버튼 (자동 연결)")]
+    [SerializeField] private Button closeButton;
+    [SerializeField] private Button settingButton;
+    [SerializeField] private Button goMainButton;
 
     private bool isPaused = false;
 
     void Start()
     {
-        // 초기화: 메뉴 숨김
-        if (pauseMenuPanel != null)
+        // 1. 초기화: 메뉴 숨김
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
+
+        // 2. 서랍들도 확실히 초기화 (메인 서랍만 켜기)
+        if (mainPausePanel != null) mainPausePanel.SetActive(true);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (audioSettingsPanel != null) audioSettingsPanel.SetActive(false);
+
+        // --- 3. 버튼 이벤트 '자동' 연결 ---
+
+        // 3-1. 메인 서랍 버튼 (Setting, GoMain, Close)
+        if (closeButton != null) closeButton.onClick.AddListener(ResumeGame);
+        if (settingButton != null) settingButton.onClick.AddListener(OpenSettingsMenu);
+        if (goMainButton != null) goMainButton.onClick.AddListener(OnGoMainButton);
+
+        // 3-2. '설정' 서랍 버튼 (Audio, Back)
+        if (settingsPanel != null)
         {
-            pauseMenuPanel.SetActive(false);
+            // 'AudioButton'을 찾아서 연결
+            Button audioBtn = settingsPanel.transform.FindDeepChild("AudioButton")?.GetComponent<Button>();
+            if (audioBtn != null) audioBtn.onClick.AddListener(OpenAudioSettings);
+
+            // 'BackButton'을 찾아서 연결
+            Button backBtn_L1 = settingsPanel.transform.FindDeepChild("BackButton")?.GetComponent<Button>();
+            if (backBtn_L1 != null) backBtn_L1.onClick.AddListener(BackToMainPause);
         }
 
-        // 버튼 이벤트 연결
-        if (closeButton != null)
+        // 3-3. '오디오' 서랍 버튼 (Back)
+        if (audioSettingsPanel != null)
         {
-            closeButton.onClick.AddListener(OnCloseButton);
+            // 'BackButton'을 찾아서 연결
+            Button backBtn_L2 = audioSettingsPanel.GetComponentInChildren<Button>(true); // (비활성화된 자식 포함)
+            if (backBtn_L2 != null && backBtn_L2.name.Contains("Back")) backBtn_L2.onClick.AddListener(BackToSettings);
         }
 
-        if (settingButton != null)
-        {
-            settingButton.onClick.AddListener(OnSettingButton);
-        }
-
-        if (goMainButton != null)
-        {
-            goMainButton.onClick.AddListener(OnGoMainButton);
-        }
-
-        // 씬 로드 이벤트 구독
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     void OnDestroy()
     {
-        // 씬 로드 이벤트 구독 해제
         SceneManager.sceneLoaded -= OnSceneLoaded;
-
-        // 오브젝트가 파괴될 때 시간 복구 (안전장치)
         Time.timeScale = 1f;
     }
 
-    /// <summary>
-    /// 씬 로드 완료 시 호출
-    /// </summary>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 게임 씬으로 들어갈 때마다 일시정지 메뉴 강제로 닫기
-        Debug.Log($"[PauseMenu] 씬 '{scene.name}' 로드됨 - 일시정지 메뉴 초기화");
-
-        // 패널 강제로 끄기
-        if (pauseMenuPanel != null)
-        {
-            pauseMenuPanel.SetActive(false);
-        }
-
-        // 상태 초기화
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
         isPaused = false;
         Time.timeScale = 1f;
     }
 
     void Update()
     {
-        // ESC 키 입력 감지
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             TogglePause();
         }
     }
 
-    /// <summary>
-    /// 일시정지 토글
-    /// </summary>
+    // --- (일시정지 기본 기능) ---
+
     private void TogglePause()
     {
-        if (isPaused)
-        {
-            ResumeGame();
-        }
-        else
-        {
-            PauseGame();
-        }
+        if (isPaused) ResumeGame();
+        else PauseGame();
     }
 
-    /// <summary>
-    /// 게임 일시정지
-    /// </summary>
     private void PauseGame()
     {
         isPaused = true;
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(true);
 
-        if (pauseMenuPanel != null)
-        {
-            pauseMenuPanel.SetActive(true);
-        }
+        // ESC로 켤 땐 항상 '메인 서랍'부터 보이도록 리셋
+        if (mainPausePanel != null) mainPausePanel.SetActive(true);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (audioSettingsPanel != null) audioSettingsPanel.SetActive(false);
 
-        // 시간 정지
         Time.timeScale = 0f;
-
-        Debug.Log("[PauseMenu] 게임 일시정지");
     }
 
-    /// <summary>
-    /// 게임 재개
-    /// </summary>
     private void ResumeGame()
     {
         isPaused = false;
-
-        if (pauseMenuPanel != null)
-        {
-            pauseMenuPanel.SetActive(false);
-        }
-
-        // 시간 재개
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
         Time.timeScale = 1f;
-
-        Debug.Log("[PauseMenu] 게임 재개");
     }
 
-    /// <summary>
-    /// Close 버튼 클릭
-    /// </summary>
-    private void OnCloseButton()
+    // --- (★ 버튼 5개가 호출할 5개의 함수 ★) ---
+
+    // 1. (메인) Setting 버튼 -> 2차 메뉴 열기
+    private void OpenSettingsMenu()
     {
-        Debug.Log("[PauseMenu] Close 버튼 클릭");
-        ResumeGame();
+        mainPausePanel.SetActive(false);
+        settingsPanel.SetActive(true);
     }
 
-    /// <summary>
-    /// Setting 버튼 클릭 (추후 구현)
-    /// </summary>
-    private void OnSettingButton()
+    // 2. (2차 메뉴) Audio 버튼 -> 오디오 서랍 열기
+    private void OpenAudioSettings()
     {
-        Debug.Log("[PauseMenu] Setting 버튼 클릭 (추후 구현 예정)");
-
-        // TODO: Setting 씬으로 이동하거나 설정 패널 열기
-        // SceneManager.LoadScene("Setting");
+        settingsPanel.SetActive(false);
+        audioSettingsPanel.SetActive(true);
     }
 
-    /// <summary>
-    /// GoMain 버튼 클릭
-    /// </summary>
+    // 3. (오디오 서랍) Back 버튼 -> 2차 메뉴로
+    private void BackToSettings()
+    {
+        audioSettingsPanel.SetActive(false);
+        settingsPanel.SetActive(true);
+    }
+
+    // 4. (2차 메뉴) Back 버튼 -> 메인 서랍으로
+    private void BackToMainPause()
+    {
+        settingsPanel.SetActive(false);
+        mainPausePanel.SetActive(true);
+    }
+
+    // 5. (메인) GoMain 버튼
     private void OnGoMainButton()
     {
-        Debug.Log("[PauseMenu] GoMain 버튼 클릭 - 메인 화면으로 이동");
-
-        // 코루틴 시작 (확실한 파괴 후 씬 로드)
         StartCoroutine(GoMainCoroutine());
     }
 
-    /// <summary>
-    /// Main 씬으로 이동하는 코루틴
-    /// 플래그 설정 후 씬 로드만 수행 (정리는 씬 로드 시 자동 처리)
-    /// </summary>
+    // (GoMainCoroutine 함수는 '새 게임' 버그 수정 포함)
     private System.Collections.IEnumerator GoMainCoroutine()
     {
-        // 1. 일시정지 메뉴 완전히 닫기
-        if (pauseMenuPanel != null)
-        {
-            pauseMenuPanel.SetActive(false);
-        }
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
         Time.timeScale = 1f;
         isPaused = false;
 
-        // 2. ⭐ DontDestroyOnLoadManager가 작동하지 않도록 플래그 설정
+        PlayerStats.ResetStaticVariables();
+        BossGameManager.ResetStaticVariables();
+
         DontDestroyOnLoadManager.isReturningToMainMenu = true;
-        Debug.Log("[PauseMenu] 메인 화면 복귀 플래그 설정");
 
-        // 3. Player, Inventory 싱글톤 Instance를 null로 초기화
-        if (PlayerController.Instance != null)
-        {
-            PlayerController.Instance = null;
-            Debug.Log("[PauseMenu] PlayerController.Instance = null");
-        }
+        if (PlayerController.Instance != null) PlayerController.Instance = null;
+        if (Inventory.instance != null) Inventory.instance = null;
 
-        if (Inventory.instance != null)
-        {
-            Inventory.instance = null;
-            Debug.Log("[PauseMenu] Inventory.instance = null");
-        }
-
-        // 4. 메인 씬으로 이동 (DontDestroyOnLoad 아닌 오브젝트들은 자동 파괴됨)
-        Debug.Log("[PauseMenu] Main 씬 로드 시작");
         SceneManager.LoadScene("Main");
-
         yield return null;
     }
+}
 
-    /// <summary>
-    /// 외부에서 일시정지 메뉴 열기
-    /// </summary>
-    public void OpenPauseMenu()
+// `transform.Find`가 비활성화된 자식이나 손자들을 못 찾는 문제를 해결
+public static class TransformExtensions
+{
+    public static Transform FindDeepChild(this Transform aParent, string aName)
     {
-        if (!isPaused)
+        Queue<Transform> queue = new Queue<Transform>();
+        queue.Enqueue(aParent);
+        while (queue.Count > 0)
         {
-            PauseGame();
+            var c = queue.Dequeue();
+            if (c.name == aName)
+                return c;
+            foreach (Transform t in c)
+                queue.Enqueue(t);
         }
-    }
-
-    /// <summary>
-    /// 외부에서 일시정지 메뉴 닫기
-    /// </summary>
-    public void ClosePauseMenu()
-    {
-        if (isPaused)
-        {
-            ResumeGame();
-        }
+        return null;
     }
 }
