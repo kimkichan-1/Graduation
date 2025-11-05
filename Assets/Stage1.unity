@@ -160,7 +160,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000022003469, y: 0.048033684}
+  m_AnchoredPosition: {x: -0.000031314677, y: 0.048114654}
   m_SizeDelta: {x: -11.8533, y: 1032}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &5723049
@@ -5959,6 +5959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c95b555897eb8964a8fe711e88a7ba38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPlayerNear: 0
 --- !u!4 &381396805
 Transform:
   m_ObjectHideFlags: 0
@@ -35482,6 +35483,9 @@ MonoBehaviour:
   ascendForce: 5.5
   waterDrag: 1.5
   gravityScaleInWater: 1
+  attackMoveSpeed: 0.5
+  speedReductionFactor: 0.5
+  speedReductionDuration: 0.5
   wallCheck: {fileID: 0}
   wallCheckRadius: 0.1
   wallLayer:
@@ -35988,7 +35992,7 @@ PrefabInstance:
       objectReference: {fileID: -7801067643028038101, guid: b907478f16be77c47b6acd8ff953e824, type: 2}
     - target: {fileID: 6336361647860123990, guid: 428a948883e75d943a9a65530f2b4d58, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6680066491458575816, guid: 428a948883e75d943a9a65530f2b4d58, type: 3}
       propertyPath: detectionSize.x
