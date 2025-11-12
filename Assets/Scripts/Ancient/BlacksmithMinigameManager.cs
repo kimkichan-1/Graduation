@@ -1,42 +1,42 @@
-// ÆÄÀÏ¸í: BlacksmithMinigameManager.cs (ÃÖÁ¾ ¼öÁ¤ ¹öÀü)
+// ï¿½ï¿½ï¿½Ï¸ï¿½: BlacksmithMinigameManager.cs (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement; // ¾À °ü¸®¸¦ À§ÇØ Ãß°¡
+using UnityEngine.SceneManagement; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 using UnityEngine.Events;
 
 public class BlacksmithMinigameManager : MonoBehaviour
 {
     public static bool isGamePausedByManager = false;
-    [Header("°ÔÀÓ ½ÃÀÛ ¼³¸í")]
-    [Tooltip("¹Ì´Ï°ÔÀÓ ½ÃÀÛ ½Ã º¸¿©ÁÙ ¼³¸í ´ë»ç")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
+    [Tooltip("ï¿½Ì´Ï°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½")]
     [TextArea(3, 10)]
     public string[] startDialogue;
     public static BlacksmithMinigameManager Instance { get; private set; }
 
-    [Header("UI ¿ä¼Ò")]
+    [Header("UI ï¿½ï¿½ï¿½")]
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI scoreText;
 
-    [Header("¹Ì´Ï°ÔÀÓ ¼³Á¤")]
+    [Header("ï¿½Ì´Ï°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private float gameDuration = 60f;
     [SerializeField] private GameObject soulFlamePrefab;
     [SerializeField] private float spawnInterval = 2f;
 
-    [Header("½ºÆù ¿µ¿ª")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private Transform spawnAreaMin;
     [SerializeField] private Transform spawnAreaMax;
 
-    // --- ÀÌ ºÎºĞÀ» Ãß°¡ÇÏ¼¼¿ä ---
-    [Header("Á¾·á UI")]
-    [SerializeField] private GameObject rewardPanel; // °ÔÀÓ Á¾·á ½Ã ÄÓ ÆĞ³Î
-    [SerializeField] private TextMeshProUGUI rewardInfoText; // º¸»ó ³»¿ëÀ» Ç¥½ÃÇÒ ÅØ½ºÆ®
-    // --- ¿©±â±îÁö ---
+    // --- ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Ï¼ï¿½ï¿½ï¿½ ---
+    [Header("ï¿½ï¿½ï¿½ï¿½ UI")]
+    [SerializeField] private GameObject rewardPanel; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Ğ³ï¿½
+    [SerializeField] private TextMeshProUGUI rewardInfoText; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ®
+    // --- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ---
 
     private float currentTime;
     private int score;
-    private bool isGameActive = true; // °ÔÀÓ È°¼ºÈ­ »óÅÂ º¯¼ö Ãß°¡
-    private bool hasGameStarted = false; // °ÔÀÓÀÌ ½ÃÀÛµÇ¾ú´ÂÁö È®ÀÎÇÏ´Â ÇÃ·¡±×
+    private bool isGameActive = true; // ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
+    private bool hasGameStarted = false; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÛµÇ¾ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½
 
     void Awake()
     {
@@ -46,17 +46,17 @@ public class BlacksmithMinigameManager : MonoBehaviour
 
     void Start()
     {
-        // ¡Ú¡Ú¡Ú ÀÌ ºÎºĞÀ» Ãß°¡ÇÏ¼¼¿ä ¡Ú¡Ú¡Ú
-        hasGameStarted = false; // ¾ÀÀÌ ½ÃÀÛµÉ ¶§ ÇÃ·¡±× ÃÊ±âÈ­
-        // --- ¿©±â±îÁö ---
+        // ï¿½Ú¡Ú¡ï¿½ ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Ï¼ï¿½ï¿½ï¿½ ï¿½Ú¡Ú¡ï¿½
+        hasGameStarted = false; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ûµï¿½ ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
+        // --- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ---
         isGamePausedByManager = false;
         if (rewardPanel != null) rewardPanel.SetActive(false);
-        Time.timeScale = 0f; // °ÔÀÓ ÀÏ½ÃÁ¤Áö
+        Time.timeScale = 0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-        // DialogueController¸¦ ÅëÇØ ¼³¸í ´ëÈ­¸¦ ½ÃÀÛÇÕ´Ï´Ù.
+        // DialogueControllerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
         if (DialogueController.Instance != null && startDialogue.Length > 0)
         {
-            // ´ëÈ­°¡ ³¡³­ ÈÄ¿¡ ½ÇÇàÇÒ Çàµ¿À¸·Î 'StartMinigame' ÇÔ¼ö¸¦ ÁöÁ¤ÇÕ´Ï´Ù.
+            // ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½àµ¿ï¿½ï¿½ï¿½ï¿½ 'StartMinigame' ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
             UnityEvent endAction = new UnityEvent();
             endAction.AddListener(StartMinigame);
 
@@ -64,22 +64,22 @@ public class BlacksmithMinigameManager : MonoBehaviour
         }
         else
         {
-            // º¸¿©ÁÙ ¼³¸íÀÌ ¾ø´Ù¸é, ¹Ù·Î °ÔÀÓÀ» ½ÃÀÛÇÕ´Ï´Ù.
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½, ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
             StartMinigame();
         }
     }
     public void StartMinigame()
     {
-        // ¡Ú¡Ú¡Ú ÀÌ ºÎºĞÀÌ ¼öÁ¤µÇ¾ú½À´Ï´Ù ¡Ú¡Ú¡Ú
-        // ¸¸¾à °ÔÀÓÀÌ ÀÌ¹Ì ½ÃÀÛµÇ¾ú´Ù¸é, ¾Æ¹«°Íµµ ÇÏÁö ¾Ê°í ÇÔ¼ö¸¦ Áï½Ã Á¾·áÇÕ´Ï´Ù.
+        // ï¿½Ú¡Ú¡ï¿½ ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ú¡Ú¡ï¿½
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ÛµÇ¾ï¿½ï¿½Ù¸ï¿½, ï¿½Æ¹ï¿½ï¿½Íµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
         if (hasGameStarted)
         {
-            Debug.LogWarning("StartMinigame()ÀÌ Áßº¹ È£ÃâµÇ¾úÁö¸¸, ¹«½ÃµÇ¾ú½À´Ï´Ù.");
+            Debug.LogWarning("StartMinigame()ï¿½ï¿½ ï¿½ßºï¿½ È£ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ÃµÇ¾ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
-        // °ÔÀÓÀÌ ½ÃÀÛµÇ¾ú´Ù°í ÇÃ·¡±×¸¦ true·Î ¼³Á¤ÇÕ´Ï´Ù.
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÛµÇ¾ï¿½ï¿½Ù°ï¿½ ï¿½Ã·ï¿½ï¿½×¸ï¿½ trueï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
         hasGameStarted = true;
-        // --- ¿©±â±îÁö ---
+        // --- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ---
 
         Time.timeScale = 1f;
         isGameActive = true;
@@ -100,10 +100,10 @@ public class BlacksmithMinigameManager : MonoBehaviour
             yield return null;
         }
 
-        EndGame(); // ½Ã°£ÀÌ ´Ù µÇ¸é °ÔÀÓ Á¾·á ÇÔ¼ö È£Ãâ
+        EndGame(); // ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ È£ï¿½ï¿½
     }
 
-    // --- ¾Æ·¡ ÇÔ¼öµéÀ» »õ·Î Ãß°¡ÇÏ°Å³ª ¼öÁ¤ÇÕ´Ï´Ù ---
+    // --- ï¿½Æ·ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Ï°Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½ ---
 
     private void EndGame()
     {
@@ -111,19 +111,19 @@ public class BlacksmithMinigameManager : MonoBehaviour
         StopAllCoroutines();
         timerText.text = "game over!";
 
-        // °ÔÀÓ Á¾·á ½Ã, °ÔÀÓÀÇ ½Ã°£À» ¸ØÃä´Ï´Ù.
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
         Time.timeScale = 0f;
-        isGamePausedByManager = true; // °ÔÀÓÀÌ ÀÌ ¸Å´ÏÀú¿¡ ÀÇÇØ ¸ØÃè´Ù°í '±â·Ï'
+        isGamePausedByManager = true; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ù°ï¿½ 'ï¿½ï¿½ï¿½'
 
-        // ¡Ú¡Ú¡Ú ÀÌ ºÎºĞÀÌ ¼öÁ¤µÇ¾ú½À´Ï´Ù ¡Ú¡Ú¡Ú
-        // º¸»ó °è»ê ÈÄ 'Áï½Ã Áö±Ş'ÇÏµµ·Ï º¯°æ
+        // ï¿½Ú¡Ú¡ï¿½ ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ú¡Ú¡ï¿½
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½'ï¿½Ïµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         CalculateAndGrantRewards();
-        // ¡Ú¡Ú¡Ú ¿©±â±îÁö ¡Ú¡Ú¡Ú
+        // ï¿½Ú¡Ú¡ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¡Ú¡ï¿½
 
         if (rewardPanel != null) rewardPanel.SetActive(true);
     }
 
-    // ¡Ú¡Ú¡Ú ÇÔ¼ö ÀÌ¸§°ú ³»¿ëÀÌ º¯°æµÇ¾ú½À´Ï´Ù ¡Ú¡Ú¡Ú
+    // ï¿½Ú¡Ú¡ï¿½ ï¿½Ô¼ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ú¡Ú¡ï¿½
     private void CalculateAndGrantRewards()
     {
         string rewardMessage;
@@ -131,80 +131,80 @@ public class BlacksmithMinigameManager : MonoBehaviour
         int xpReward = 0;
         int attackBonusReward = 0;
 
-        // Á¡¼ö(¸ğÀº ºÒ²É °¹¼ö)¿¡ µû¶ó º¸»ó ¼öÄ¡ °è»ê
-        if (score >= 20) // ¿¹½Ã: ºÒ²É 20°³ ÀÌ»ó
+        // ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ ï¿½Ò²ï¿½ ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½
+        if (score >= 20) // ï¿½ï¿½ï¿½ï¿½: ï¿½Ò²ï¿½ 20ï¿½ï¿½ ï¿½Ì»ï¿½
         {
             rewardMessage = $"The best performance!\n\nGold + 700\nExperience value +500\nAttacks +30";
             goldReward = 700;
             xpReward = 500;
             attackBonusReward = 30;
         }
-        else if (score >= 10) // ¿¹½Ã: ºÒ²É 10°³ ÀÌ»ó
+        else if (score >= 10) // ï¿½ï¿½ï¿½ï¿½: ï¿½Ò²ï¿½ 10ï¿½ï¿½ ï¿½Ì»ï¿½
         {
             rewardMessage = $"Great achievement!\n\nGold + 500\nExperience value +300\nAttacking +15";
             goldReward = 500;
             xpReward = 300;
             attackBonusReward = 15;
         }
-        else // ±× ¿Ü
+        else // ï¿½ï¿½ ï¿½ï¿½
         {
             rewardMessage = $"basic compensation\n\nGold +200\nExperience value +50";
             goldReward = 200;
             xpReward = 50;
         }
 
-        // 1. UI¿¡ º¸»ó ³»¿ëÀ» Ç¥½ÃÇÕ´Ï´Ù.
+        // 1. UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
         if (rewardInfoText != null) rewardInfoText.text = rewardMessage;
 
-        // 2. 'Player' ÅÂ±×·Î ÇÃ·¹ÀÌ¾î¸¦ Ã£¾Æ¼­ PlayerStats ½ºÅ©¸³Æ®¸¦ °¡Á®¿É´Ï´Ù.
+        // 2. 'Player' ï¿½Â±×·ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ Ã£ï¿½Æ¼ï¿½ PlayerStats ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
         if (playerObject != null)
         {
             PlayerStats playerStats = playerObject.GetComponent<PlayerStats>();
             if (playerStats != null)
             {
-                // 3. PlayerStats ½ºÅ©¸³Æ®ÀÇ ÇÔ¼ö¸¦ Á÷Á¢ È£ÃâÇÏ¿© º¸»óÀ» Áï½Ã Áö±ŞÇÕ´Ï´Ù.
-                Debug.Log("ÇÃ·¹ÀÌ¾î¿¡°Ô º¸»óÀ» Á÷Á¢ Áö±ŞÇÕ´Ï´Ù...");
+                // 3. PlayerStats ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
+                Debug.Log("ï¿½Ã·ï¿½ï¿½Ì¾î¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½...");
                 if (goldReward > 0) playerStats.AddMoney(goldReward);
                 if (xpReward > 0) playerStats.AddXp(xpReward);
-                if (attackBonusReward > 0) playerStats.AddAttackPower(attackBonusReward); ; // UpgradeAttackPower´Â 5¾¿ ¿À¸£¹Ç·Î, ¿©·¯¹ø È£ÃâÇÏ°Å³ª °ªÀ» ¹Şµµ·Ï ¼öÁ¤ ÇÊ¿ä
-                // Âü°í: PlayerStatsÀÇ UpgradeAttackPower()´Â 5¾¿ ¿À¸£µµ·Ï °íÁ¤µÇ¾î ÀÖ½À´Ï´Ù.
-                // ¸¸¾à 2ÀÇ º¸³Ê½º¸¦ ÁÖ°í ½Í´Ù¸é, PlayerStatsÀÇ UpgradeAttackPower() ÇÔ¼ö¸¦
-                // public void UpgradeAttackPower(int amount) { bonusAttackPower += amount; ... } ¿Í °°ÀÌ ¼öÁ¤ÇØ¾ß ÇÕ´Ï´Ù.
-                // Áö±İÀº ±âÁ¸ ÇÔ¼ö¸¦ ±×´ë·Î È°¿ëÇÏ°Ú½À´Ï´Ù.
+                if (attackBonusReward > 0) playerStats.AddAttackPower(attackBonusReward); ; // UpgradeAttackPowerï¿½ï¿½ 5ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï°Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Şµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½
+                // ï¿½ï¿½ï¿½ï¿½: PlayerStatsï¿½ï¿½ UpgradeAttackPower()ï¿½ï¿½ 5ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½Ö½ï¿½ï¿½Ï´ï¿½.
+                // ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ ï¿½Ö°ï¿½ ï¿½Í´Ù¸ï¿½, PlayerStatsï¿½ï¿½ UpgradeAttackPower() ï¿½Ô¼ï¿½ï¿½ï¿½
+                // public void UpgradeAttackPower(int amount) { bonusAttackPower += amount; ... } ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½Õ´Ï´ï¿½.
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½×´ï¿½ï¿½ È°ï¿½ï¿½ï¿½Ï°Ú½ï¿½ï¿½Ï´ï¿½.
             }
             else
             {
-                Debug.LogError("ÇÃ·¹ÀÌ¾î ¿ÀºêÁ§Æ®¿¡¼­ PlayerStats ½ºÅ©¸³Æ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+                Debug.LogError("ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ PlayerStats ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
             }
         }
         else
         {
-            Debug.LogError("'Player' ÅÂ±×¸¦ °¡Áø ÇÃ·¹ÀÌ¾î ¿ÀºêÁ§Æ®¸¦ ¾À¿¡¼­ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("'Player' ï¿½Â±×¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
         }
     }
 
-    // 'µ¹¾Æ°¡±â' ¹öÆ°¿¡ ¿¬°áÇÒ ÇÔ¼ö
+    // 'ï¿½ï¿½ï¿½Æ°ï¿½ï¿½ï¿½' ï¿½ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
     public void ReturnToPreviousScene()
     {
         Time.timeScale = 1f;
-        isGamePausedByManager = false; // °ÔÀÓÀÌ ´Ù½Ã ½ÃÀÛµÇ¹Ç·Î '±â·Ï'À» ÇØÁ¦
-        // StatueInteraction ½ºÅ©¸³Æ®¿¡ ÀúÀåÇØµĞ ÀÌÀü ¾À ÀÌ¸§À¸·Î ¾ÀÀ» ºÒ·¯¿É´Ï´Ù.
+        isGamePausedByManager = false; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ÛµÇ¹Ç·ï¿½ 'ï¿½ï¿½ï¿½'ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        // StatueInteraction ï¿½ï¿½Å©ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½É´Ï´ï¿½.
         if (!string.IsNullOrEmpty(StatueInteraction.previousSceneName))
         {
             SceneManager.LoadScene(StatueInteraction.previousSceneName);
         }
         else
         {
-            // ¸¸¾à ÀúÀåµÈ ¾À ÀÌ¸§ÀÌ ¾ø´Ù¸é ±âº» ½ºÅ×ÀÌÁö·Î ÀÌµ¿ (¾ÈÀüÀåÄ¡)
-            Debug.LogWarning("µ¹¾Æ°¥ ¾À Á¤º¸°¡ ¾ø½À´Ï´Ù. ±âº» ¾ÀÀ¸·Î ÀÌµ¿ÇÕ´Ï´Ù.");
-            SceneManager.LoadScene("Stage1"); // "Stage1"Àº ½ÇÁ¦ ±âº» ½ºÅ×ÀÌÁö ¾À ÀÌ¸§À¸·Î º¯°æ
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡)
+            Debug.LogWarning("ï¿½ï¿½ï¿½Æ°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½. ï¿½âº» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½Õ´Ï´ï¿½.");
+            SceneManager.LoadScene("Stage1"); // "Stage1"ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         }
     }
 
     private IEnumerator SpawnFlameRoutine()
     {
-        while (isGameActive) // isGameActive°¡ trueÀÏ ¶§¸¸ ½ºÆù
+        while (isGameActive) // isGameActiveï¿½ï¿½ trueï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         {
             SpawnFlame();
             yield return new WaitForSeconds(spawnInterval);
@@ -213,12 +213,12 @@ public class BlacksmithMinigameManager : MonoBehaviour
 
     public void CollectFlame(GameObject flameObject)
     {
-        if (!isGameActive || flameObject == null) return; // °ÔÀÓÀÌ ³¡³µÀ¸¸é ¼öÁı ºÒ°¡
+        if (!isGameActive || flameObject == null) return; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ò°ï¿½
         AddScore(1);
         Destroy(flameObject);
     }
 
-    // (±âÁ¸ÀÇ ´Ù¸¥ ÇÔ¼öµéÀº ±×´ë·Î À¯Áö)
+    // (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×´ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     void SpawnFlame()
     {
         float spawnX = Random.Range(spawnAreaMin.position.x, spawnAreaMax.position.x);
@@ -242,5 +242,14 @@ public class BlacksmithMinigameManager : MonoBehaviour
     private void UpdateScoreUI()
     {
         scoreText.text = $"flame: {score}";
+    }
+
+    /// <summary>
+    /// static ë³€ìˆ˜ ì´ˆê¸°í™” (ê²Œì„ ì˜¤ë²„ ë˜ëŠ” ë©”ì¸ ë©”ë‰´ ë³µê·€ ì‹œ í˜¸ì¶œ)
+    /// </summary>
+    public static void ResetStaticVariables()
+    {
+        isGamePausedByManager = false;
+        Debug.Log("BlacksmithMinigameManager: isGamePausedByManager ì´ˆê¸°í™”ë¨");
     }
 }

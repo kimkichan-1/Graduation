@@ -62,6 +62,12 @@ public class MainMenuController : MonoBehaviour
         // ⭐ DontDestroyOnLoadManager 플래그 리셋 (새 게임 시작)
         DontDestroyOnLoadManager.ResetMainMenuFlag();
 
+        // ⭐ 새 게임 시작 시 static 변수들 초기화
+        MidBossController.ResetStaticVariables();
+        PortalController.ResetStaticVariables();
+        StatueInteraction.ResetStaticVariables();
+        BlacksmithMinigameManager.ResetStaticVariables();
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.PrepareNewGame();
@@ -77,6 +83,12 @@ public class MainMenuController : MonoBehaviour
     {
         // ⭐ DontDestroyOnLoadManager 플래그 리셋 (게임 로드)
         DontDestroyOnLoadManager.ResetMainMenuFlag();
+
+        // ⭐ 게임 로드 시에도 static 변수들 초기화 (새 세션 시작)
+        MidBossController.ResetStaticVariables();
+        PortalController.ResetStaticVariables();
+        StatueInteraction.ResetStaticVariables();
+        BlacksmithMinigameManager.ResetStaticVariables();
 
         if (GameManager.Instance != null)
         {

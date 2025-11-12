@@ -80,4 +80,13 @@ public class MidBossController : MonoBehaviour
         }
         // ---
     }
+
+    /// <summary>
+    /// static 변수 초기화 (게임 오버 또는 메인 메뉴 복귀 시 호출)
+    /// </summary>
+    public static void ResetStaticVariables()
+    {
+        completedEventIDs.Clear();
+        Debug.Log("MidBossController: completedEventIDs 초기화됨");
+    }
 }

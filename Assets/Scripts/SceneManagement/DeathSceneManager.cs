@@ -3,45 +3,49 @@ using UnityEngine.SceneManagement;
 
 public class DeathSceneManager : MonoBehaviour
 {
-    // ¹öÆ° Å¬¸¯ ½Ã È£ÃâµÉ ÇÔ¼ö
+    // ï¿½ï¿½Æ° Å¬ï¿½ï¿½ ï¿½ï¿½ È£ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
     public void GoToMainMenu()
     {
-        // 1. (¡Ú¼öÁ¤µÊ¡Ú) ¸ØÃè´ø ½Ã°£À» 1f (Á¤»ó ¼Óµµ)·Î µÇµ¹¸³´Ï´Ù.
+        // 1. (ï¿½Ú¼ï¿½ï¿½ï¿½ï¿½Ê¡ï¿½) ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ 1f (ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½)ï¿½ï¿½ ï¿½Çµï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
         Time.timeScale = 1f;
 
         PlayerStats.ResetStaticVariables();
         BossGameManager.ResetStaticVariables();
+        MidBossController.ResetStaticVariables();
+        PortalController.ResetStaticVariables();
+        StatueInteraction.ResetStaticVariables();
+        BlacksmithMinigameManager.ResetStaticVariables();
 
         if (GameManager.Instance != null && SaveManager.Instance != null)
         {
-            // 'GameManager'·ÎºÎÅÍ ÇöÀç ÇÃ·¹ÀÌ ÁßÀÎ ½½·Ô ¹øÈ£¸¦ °¡Á®¿É´Ï´Ù.
+            // 'GameManager'ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
             int slotToDelete = GameManager.Instance.currentSaveSlot;
 
-            // ½½·Ô ¹øÈ£°¡ À¯È¿ÇÑ °æ¿ì (1, 2, 3 µî)
+            // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ (1, 2, 3 ï¿½ï¿½)
             if (slotToDelete > 0)
             {
-                Debug.Log($"ÇÃ·¹ÀÌ¾î »ç¸Á: ¼¼ÀÌºê ½½·Ô {slotToDelete}ÀÇ µ¥ÀÌÅÍ¸¦ »èÁ¦ÇÕ´Ï´Ù.");
+                Debug.Log($"ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ {slotToDelete}ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.");
 
-                // 'SaveManager'¿¡°Ô ÇØ´ç ½½·ÔÀÇ ÆÄÀÏ »èÁ¦¸¦ ¸í·ÉÇÕ´Ï´Ù.
+                // 'SaveManager'ï¿½ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
                 SaveManager.Instance.DeleteSave(slotToDelete);
             }
             else
             {
-                // currentSaveSlotÀÌ -1ÀÌ°Å³ª 0ÀÎ °æ¿ì (»õ °ÔÀÓ Á÷ÈÄ ÀúÀå ¾È ÇÔ µî)
-                Debug.Log("ÇöÀç ¼¼ÀÌºê ½½·ÔÀÌ ¼³Á¤µÇÁö ¾Ê¾Æ, »èÁ¦ÇÒ ÆÄÀÏÀÌ ¾ø½À´Ï´Ù.");
+                // currentSaveSlotï¿½ï¿½ -1ï¿½Ì°Å³ï¿½ 0ï¿½ï¿½ ï¿½ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½)
+                Debug.Log("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             }
         }
         else
         {
-            Debug.LogWarning("GameManager ¶Ç´Â SaveManager°¡ ¾ø¾î¼­ ¼¼ÀÌºê ÆÄÀÏÀ» »èÁ¦ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("GameManager ï¿½Ç´ï¿½ SaveManagerï¿½ï¿½ ï¿½ï¿½ï¿½î¼­ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
         }
-        // --- ¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã¡ã ---
+        // --- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ---
 
-        // 3. (¡Ú¼öÁ¤µÊ¡Ú) DontDestroyOnLoadManagerÀÇ ÇÃ·¡±×¸¦ ¼³Á¤ÇÕ´Ï´Ù.
-        //    ÀÌÁ¦ GameManager µîÀ» Á÷Á¢ Destroy() ÇÒ ÇÊ¿ä°¡ ¾ø½À´Ï´Ù.
+        // 3. (ï¿½Ú¼ï¿½ï¿½ï¿½ï¿½Ê¡ï¿½) DontDestroyOnLoadManagerï¿½ï¿½ ï¿½Ã·ï¿½ï¿½×¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
+        //    ï¿½ï¿½ï¿½ï¿½ GameManager ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Destroy() ï¿½ï¿½ ï¿½Ê¿ä°¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
         DontDestroyOnLoadManager.isReturningToMainMenu = true;
 
-        // 4. "Main" ¾ÀÀ» ·ÎµåÇÕ´Ï´Ù.
+        // 4. "Main" ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½Õ´Ï´ï¿½.
         SceneManager.LoadScene("Main");
     }
 }

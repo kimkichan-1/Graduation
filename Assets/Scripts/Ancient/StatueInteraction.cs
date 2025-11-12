@@ -1,41 +1,41 @@
-// ÆÄÀÏ¸í: StatueInteraction.cs (ÃÖÁ¾ ¼öÁ¤ ¹öÀü)
+// ï¿½ï¿½ï¿½Ï¸ï¿½: StatueInteraction.cs (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class StatueInteraction : MonoBehaviour
 {
-    [Header("»óÅÂ ¼³Á¤")]
-    [SerializeField] private bool isUnlocked = false; // Æ÷Å»ÀÇ ÇöÀç È°¼ºÈ­ »óÅÂ
+    [Header("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
+    [SerializeField] private bool isUnlocked = false; // ï¿½ï¿½Å»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½
 
-    [Header("ÀÌµ¿ÇÒ ¾À ÀÌ¸§")]
+    [Header("ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì¸ï¿½")]
     public string sceneToLoad;
 
-    [Header("º¹±Í ÁöÁ¡")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     public Transform returnSpawnPoint;
 
-    // (static º¯¼öµéÀº PlayerReturnManager°¡ »ç¿ëÇÏ¹Ç·Î ±×´ë·Î µÓ´Ï´Ù)
+    // (static ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ PlayerReturnManagerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¹Ç·ï¿½ ï¿½×´ï¿½ï¿½ ï¿½Ó´Ï´ï¿½)
     public static string previousSceneName;
     public static Vector3 returnPosition;
     public static bool hasReturnInfo = false;
 
     private bool playerIsNear = false;
-    private SpriteRenderer spriteRenderer; // ½ºÇÁ¶óÀÌÆ®¸¦ Á¦¾îÇÏ±â À§ÇÑ º¯¼ö
-    private Collider2D portalCollider;     // Äİ¶óÀÌ´õ¸¦ Á¦¾îÇÏ±â À§ÇÑ º¯¼ö
+    private SpriteRenderer spriteRenderer; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    private Collider2D portalCollider;     // ï¿½İ¶ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     private void Awake()
     {
-        // ½ÃÀÛÇÏ±â Àü¿¡ ÇÊ¿äÇÑ ÄÄÆ÷³ÍÆ®µéÀ» ¹Ì¸® Ã£¾Æ³õ½À´Ï´Ù.
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ Ã£ï¿½Æ³ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
         spriteRenderer = GetComponent<SpriteRenderer>();
         portalCollider = GetComponent<Collider2D>();
     }
 
     void Start()
     {
-        // ¡Ú¡Ú¡Ú ÇÙ½É ·ÎÁ÷ 1: ½ÃÀÛ ½Ã ½º½º·Î¸¦ ¼û±é´Ï´Ù ¡Ú¡Ú¡Ú
-        // ¸¸¾à Æ÷Å»ÀÌ ¾ÆÁ÷ È°¼ºÈ­µÇÁö ¾Ê¾Ò´Ù¸é(isUnlocked°¡ false¶ó¸é)
+        // ï¿½Ú¡Ú¡ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ 1: ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ú¡Ú¡ï¿½
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Ò´Ù¸ï¿½(isUnlockedï¿½ï¿½ falseï¿½ï¿½ï¿½)
         if (!isUnlocked)
         {
-            // ÀÚ½ÅÀÇ ¸ğ½ÀÀ» º¸ÀÌÁö ¾Ê°Ô ÇÏ°í, Ãæµ¹µµ °¨ÁöµÇÁö ¾Ê°Ô ÇÕ´Ï´Ù.
+            // ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½Ï°ï¿½, ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½Õ´Ï´ï¿½.
             if (spriteRenderer != null) spriteRenderer.enabled = false;
             if (portalCollider != null) portalCollider.enabled = false;
         }
@@ -43,30 +43,30 @@ public class StatueInteraction : MonoBehaviour
 
     void Update()
     {
-        // È°¼ºÈ­µÈ »óÅÂÀÏ ¶§¸¸ 'W'Å°·Î ÀÔÀå °¡´É
+        // È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 'W'Å°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (playerIsNear && Input.GetKeyDown(KeyCode.W) && isUnlocked)
         {
             EnterPortal();
         }
     }
 
-    // ¡Ú¡Ú¡Ú ÇÙ½É ·ÎÁ÷ 2: ¿ÜºÎ(º¸½º)¿¡¼­ È£ÃâÇÏ¿© ½º½º·Î¸¦ µå·¯³»´Â ÇÔ¼ö ¡Ú¡Ú¡Ú
+    // ï¿½Ú¡Ú¡ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ 2: ï¿½Üºï¿½(ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Î¸ï¿½ ï¿½å·¯ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½Ú¡Ú¡ï¿½
     public void UnlockPortal()
     {
-        isUnlocked = true; // »óÅÂ¸¦ 'È°¼ºÈ­'·Î º¯°æ
+        isUnlocked = true; // ï¿½ï¿½ï¿½Â¸ï¿½ 'È°ï¿½ï¿½È­'ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-        // ´Ù½Ã ¸ğ½ÀÀ» º¸ÀÌ°Ô ÇÏ°í, Ãæµ¹µµ °¨ÁöµÇµµ·Ï ÇÕ´Ï´Ù.
+        // ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì°ï¿½ ï¿½Ï°ï¿½, ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½ï¿½ ï¿½Õ´Ï´ï¿½.
         if (spriteRenderer != null) spriteRenderer.enabled = true;
         if (portalCollider != null) portalCollider.enabled = true;
 
-        Debug.Log("Æ÷Å»ÀÌ È°¼ºÈ­µÇ¾ú½À´Ï´Ù!");
-        // (¿©±â¿¡ Æ÷Å» ½ºÇÁ¶óÀÌÆ®¸¦ ÁÖÈ²»öÀ¸·Î ¹Ù²Ù´Â ÄÚµå¸¦ Ãß°¡ÇØµµ ÁÁ½À´Ï´Ù)
-        // ¿¹: spriteRenderer.sprite = unlockedSprite;
+        Debug.Log("ï¿½ï¿½Å»ï¿½ï¿½ È°ï¿½ï¿½È­ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
+        // (ï¿½ï¿½ï¿½â¿¡ ï¿½ï¿½Å» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½È²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²Ù´ï¿½ ï¿½Úµå¸¦ ï¿½ß°ï¿½ï¿½Øµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½)
+        // ï¿½ï¿½: spriteRenderer.sprite = unlockedSprite;
     }
 
     private void EnterPortal()
     {
-        // (º¹±Í Á¤º¸ ÀúÀå ¹× ¾À ÀÌµ¿ ·ÎÁ÷Àº ±âÁ¸°ú µ¿ÀÏ)
+        // (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
         previousSceneName = SceneManager.GetActiveScene().name;
         if (returnSpawnPoint != null) returnPosition = returnSpawnPoint.position;
         else returnPosition = transform.position;
@@ -74,7 +74,7 @@ public class StatueInteraction : MonoBehaviour
         SceneManager.LoadScene(sceneToLoad);
     }
 
-    // OnTrigger ÇÔ¼öµéÀº ÀÌÁ¦ Äİ¶óÀÌ´õ°¡ ÄÑÁ³À» ¶§¸¸ ÀÛµ¿ÇÕ´Ï´Ù.
+    // OnTrigger ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½İ¶ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ûµï¿½ï¿½Õ´Ï´ï¿½.
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player")) playerIsNear = true;
@@ -83,5 +83,16 @@ public class StatueInteraction : MonoBehaviour
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("Player")) playerIsNear = false;
+    }
+
+    /// <summary>
+    /// static ë³€ìˆ˜ ì´ˆê¸°í™” (ê²Œì„ ì˜¤ë²„ ë˜ëŠ” ë©”ì¸ ë©”ë‰´ ë³µê·€ ì‹œ í˜¸ì¶œ)
+    /// </summary>
+    public static void ResetStaticVariables()
+    {
+        previousSceneName = null;
+        returnPosition = Vector3.zero;
+        hasReturnInfo = false;
+        Debug.Log("StatueInteraction: static ë³€ìˆ˜ë“¤ ì´ˆê¸°í™”ë¨");
     }
 }
